@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Stuff - Party Cat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-legal">
+    <div class="page-container">
+        <div class="page-header">
+            <h1>🐱 Legal Stuff</h1>
+        </div>
+
+        <div class="page-content">
+            <div class="page-section">
+                <h2>🎉 What is Party Cat?</h2>
+                <p>Party Cat is a free, open-source party planning app created by Maeve Lander. It's designed to help you organise your guest list and party tasks with a smile.</p>
+            </div>
+
+            <div class="page-section">
+                <h2>🔒 Privacy & Data Processing</h2>
+                <p><strong>Guest Mode:</strong> Your data never leaves your device - it's stored locally in your browser.</p>
+                <p><strong>Account Mode:</strong> If you create an account, data you enter into the app is stored securely in a database.</p>
+                <p>You can delete all data you enter into the app at any time - simply tap "Clear Data" to remove everything.</p>
+                <p>No advertising or third-party tracking</p>
+            </div>
+
+            <div class="page-section">
+                <h2>⚖️ Terms of Use</h2>
+                <p>By using Party Cat, you agree to:</p>
+                <p>Use the app for lawful purposes only</p>
+                <p>Not attempt to break or exploit the service</p>
+                <p>Be respectful of the service and other users</p>
+                <p>Understand this is provided "as is" without warranties</p>
+            </div>
+
+            <div class="page-section">
+                <h2>🛡️ Disclaimer</h2>
+                <p>Party Cat is provided as a free service. While I will strive to keep it running smoothly, I can't guarantee 100% uptime or data protection. Please keep backups of important information.</p>
+            </div>
+
+            <a href="index.html" class="back-link">← Back to Party Cat</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-love">
+                Made with 💙 for party cats!
+            </div>
+            <div class="footer-links">
+                <a href="about.html" class="footer-link">About</a>
+                <span class="footer-separator">•</span>
+                <a href="legal.html" class="footer-link">Legal</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Background toggle button -->
+    <button class="bg-toggle" onclick="
+        document.body.classList.remove('bg-grey', 'bg-blue', 'bg-purple', 'bg-red');
+        if (!window.bgIndex) window.bgIndex = 0;
+        window.bgIndex = (window.bgIndex + 1) % 5;
+        if (window.bgIndex === 1) {
+            document.body.classList.add('bg-grey');
+        } else if (window.bgIndex === 2) {
+            document.body.classList.add('bg-blue');
+        } else if (window.bgIndex === 3) {
+            document.body.classList.add('bg-purple');
+        } else if (window.bgIndex === 4) {
+            document.body.classList.add('bg-red');
+        }
+        localStorage.setItem('partycat-bg', window.bgIndex);
+    " title="Change background">🎨</button>
+
+    <script>
+        // Load saved background on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedBg = localStorage.getItem('partycat-bg');
+            if (savedBg) {
+                window.bgIndex = parseInt(savedBg);
+                document.body.classList.remove('bg-grey', 'bg-blue', 'bg-purple', 'bg-red');
+                if (window.bgIndex === 1) {
+                    document.body.classList.add('bg-grey');
+                } else if (window.bgIndex === 2) {
+                    document.body.classList.add('bg-blue');
+                } else if (window.bgIndex === 3) {
+                    document.body.classList.add('bg-purple');
+                } else if (window.bgIndex === 4) {
+                    document.body.classList.add('bg-red');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Party Cat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-about">
+    <div class="page-container">
+        <div class="page-header">
+            <h1>🐱 About Party Cat</h1>
+        </div>
+
+        <div class="page-content">
+            <div class="page-section">
+                <h2>🎉 What is Party Cat?</h2>
+                <p>Party Cat is a free, open-source party planning app, built by me, <a href="https://maevelander.net">Maeve Lander.</a></p>
+                <p>I am not, in fact, a party animal myself. But I do love a good list to help ward off party cat-astrophies! I built this kitten-kaboodle to make organising my kids' birthday parties fun and easy. I hope Party Cat makes you smile, and helps make your own party plans purrrfect.</p>
+            </div>
+
+            <div class="page-section">
+                <h2>🔧 Technical Details</h2>
+                <p><strong>Built with:</strong> HTML, CSS, and JavaScript—no complex frameworks, just clean, efficient code</p>
+                <p><strong>Storage:</strong> Local browser storage for guest mode, Supabase for cloud accounts</p>
+                <p><strong>Privacy:</strong> No tracking, no analytics (beyond basic anonymous usage stats), no data selling</p>
+                <p><strong>Open Source:</strong> The code is available for anyone to view, modify, or contribute to</p>
+            </div>
+
+            <div class="page-section">
+                <h2>💌 Get in Touch</h2>
+                <p>Enjoyed Party Cat? Have suggestions? Feel free to reach out via my website.</p>
+                <p>Contributions or bug reports welcome via GitHub.</p>
+            </div>
+
+            <a href="index.html" class="back-link">← Back to Party Cat</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-love">
+                Made with 💙 for party cats!
+            </div>
+            <div class="footer-links">
+                <a href="about.html" class="footer-link">About</a>
+                <span class="footer-separator">•</span>
+                <a href="legal.html" class="footer-link">Legal</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Background toggle button -->
+    <button class="bg-toggle" onclick="
+        document.body.classList.remove('bg-grey', 'bg-blue', 'bg-purple', 'bg-red');
+        if (!window.bgIndex) window.bgIndex = 0;
+        window.bgIndex = (window.bgIndex + 1) % 5;
+        if (window.bgIndex === 1) {
+            document.body.classList.add('bg-grey');
+        } else if (window.bgIndex === 2) {
+            document.body.classList.add('bg-blue');
+        } else if (window.bgIndex === 3) {
+            document.body.classList.add('bg-purple');
+        } else if (window.bgIndex === 4) {
+            document.body.classList.add('bg-red');
+        }
+        localStorage.setItem('partycat-bg', window.bgIndex);
+    " title="Change background">🎨</button>
+
+    <script>
+        // Load saved background on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedBg = localStorage.getItem('partycat-bg');
+            if (savedBg) {
+                window.bgIndex = parseInt(savedBg);
+                document.body.classList.remove('bg-grey', 'bg-blue', 'bg-purple', 'bg-red');
+                if (window.bgIndex === 1) {
+                    document.body.classList.add('bg-grey');
+                } else if (window.bgIndex === 2) {
+                    document.body.classList.add('bg-blue');
+                } else if (window.bgIndex === 3) {
+                    document.body.classList.add('bg-purple');
+                } else if (window.bgIndex === 4) {
+                    document.body.classList.add('bg-red');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

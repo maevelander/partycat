@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Cat Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f7;
+            line-height: 1.6;
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #007aff 0%, #0056b3 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-box h1 {
+            color: #1d1d1f;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e5e7;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .login-btn:hover {
+            background: #0056b3;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-header h1 {
+            color: #1d1d1f;
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        .logout-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #5a6268;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .metric-card h3 {
+            color: #1d1d1f;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .big-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #007aff;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .stats-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .stats-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .stats-list li:last-child {
+            border-bottom: none;
+        }
+
+        .stats-label {
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .stats-value {
+            font-weight: bold;
+            color: #007aff;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6e6e73;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007aff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .date-range {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .date-range label {
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .date-range input {
+            padding: 8px 12px;
+            border: 2px solid #e5e5e7;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .date-range input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        .refresh-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #0056b3;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 15px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .dashboard-header h1 {
+                font-size: 2em;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .metric-card {
+                padding: 20px;
+            }
+
+            .big-number {
+                font-size: 2.5em;
+            }
+
+            .date-range {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h1>🐱 Party Cat Analytics</h1>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="password">Analytics Password</label>
+                    <input type="password" id="password" required placeholder="Enter analytics password">
+                </div>
+                <button type="submit" class="login-btn">Access Dashboard</button>
+                <div id="errorMessage" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <div class="dashboard-header">
+            <h1>📊 Party Cat Analytics</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="date-range">
+            <label for="startDate">Date Range:</label>
+            <input type="date" id="startDate">
+            <label for="endDate">to</label>
+            <input type="date" id="endDate">
+            <button class="refresh-btn" onclick="loadAnalytics()">Refresh Data</button>
+        </div>
+
+        <div class="metrics-grid">
+            <!-- Mode Usage -->
+            <div class="metric-card">
+                <h3>Guest vs Account Usage</h3>
+                <div class="chart-container">
+                    <canvas id="modeChart"></canvas>
+                </div>
+                <ul class="stats-list" id="modeStats">
+                    <li class="loading">
+                        <div class="spinner"></div>
+                        Loading data...
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Feature Popularity -->
+            <div class="metric-card">
+                <h3>Most Popular Features</h3>
+                <div class="chart-container">
+                    <canvas id="featuresChart"></canvas>
+                </div>
+                <ul class="stats-list" id="featuresStats">
+                    <li class="loading">
+                        <div class="spinner"></div>
+                        Loading data...
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Conversion Rate -->
+            <div class="metric-card">
+                <h3>Guest to Account Conversion</h3>
+                <div class="big-number" id="conversionRate">--</div>
+                <ul class="stats-list" id="conversionStats">
+                    <li class="loading">
+                        <div class="spinner"></div>
+                        Loading data...
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Browser/Device Data -->
+            <div class="metric-card">
+                <h3>Browser & Device Compatibility</h3>
+                <div class="chart-container">
+                    <canvas id="browserChart"></canvas>
+                </div>
+                <ul class="stats-list" id="browserStats">
+                    <li class="loading">
+                        <div class="spinner"></div>
+                        Loading data...
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Daily Usage -->
+            <div class="metric-card">
+                <h3>Daily Usage Patterns</h3>
+                <div class="chart-container">
+                    <canvas id="dailyChart"></canvas>
+                </div>
+                <ul class="stats-list" id="dailyStats">
+                    <li class="loading">
+                        <div class="spinner"></div>
+                        Loading data...
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Retention -->
+            <div class="metric-card">
+                <h3>User Retention</h3>
+                <div class="big-number" id="retentionRate">--</div>
+                <ul class="stats-list" id="retentionStats">
+                    <li class="loading">
+                        <div class="spinner"></div>
+                        Loading data...
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
+
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Check if user is authenticated for analytics access
+        let currentUser = null;
+
+        // Chart instances
+        let charts = {};
+
+        // Authentication using Supabase authentication
+        async function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
+
+            // For now, use password-based access
+            // TODO: Replace with proper Supabase authentication
+            const passwordHash = await hashPassword(password);
+            const correctHash = window.CONFIG?.ANALYTICS_PASSWORD_HASH || 'YOUR_PASSWORD_HASH_HERE';
+            
+            if (passwordHash === correctHash) {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('dashboard').classList.add('active');
+                localStorage.setItem('analytics_auth', 'true');
+                initializeDashboard();
+            } else {
+                errorDiv.textContent = 'Incorrect password. Please try again.';
+            }
+        }
+
+        // Hash function using SHA-256 with salt
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password + 'partycat-salt');
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
+        }
+
+        function logout() {
+            localStorage.removeItem('analytics_auth');
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('active');
+        }
+
+        function checkAuth() {
+            if (localStorage.getItem('analytics_auth') === 'true') {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('dashboard').classList.add('active');
+                initializeDashboard();
+            }
+        }
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            // Set default date range (last 30 days)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+
+            loadAnalytics();
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            try {
+                await Promise.all([
+                    loadModeUsage(startDate, endDate),
+                    loadFeaturePopularity(startDate, endDate),
+                    loadConversionRate(startDate, endDate),
+                    loadBrowserData(startDate, endDate),
+                    loadDailyUsage(startDate, endDate),
+                    loadRetentionData(startDate, endDate)
+                ]);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Mode usage (Guest vs Account)
+        async function loadModeUsage(startDate, endDate) {
+            const { data, error } = await supabase
+                .from('analytics_events')
+                .select('properties')
+                .gte('created_at', startDate)
+                .lte('created_at', endDate + 'T23:59:59')
+                .not('properties->guestMode', 'is', null);
+
+            if (error) {
+                console.error('Error loading mode usage:', error);
+                return;
+            }
+
+            const guestCount = data.filter(event => event.properties.guestMode === true).length;
+            const accountCount = data.filter(event => event.properties.guestMode === false).length;
+            const total = guestCount + accountCount;
+
+            // Update chart
+            if (charts.modeChart) charts.modeChart.destroy();
+            const ctx = document.getElementById('modeChart').getContext('2d');
+            charts.modeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Guest Mode', 'Account Mode'],
+                    datasets: [{
+                        data: [guestCount, accountCount],
+                        backgroundColor: ['#FF6384', '#36A2EB'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Update stats
+            document.getElementById('modeStats').innerHTML = `
+                <li>
+                    <span class="stats-label">Guest Mode Events</span>
+                    <span class="stats-value">${guestCount} (${total ? Math.round(guestCount/total*100) : 0}%)</span>
+                </li>
+                <li>
+                    <span class="stats-label">Account Mode Events</span>
+                    <span class="stats-value">${accountCount} (${total ? Math.round(accountCount/total*100) : 0}%)</span>
+                </li>
+                <li>
+                    <span class="stats-label">Total Events</span>
+                    <span class="stats-value">${total}</span>
+                </li>
+            `;
+        }
+
+        // Feature popularity
+        async function loadFeaturePopularity(startDate, endDate) {
+            const { data, error } = await supabase
+                .from('analytics_events')
+                .select('event_name')
+                .gte('created_at', startDate)
+                .lte('created_at', endDate + 'T23:59:59');
+
+            if (error) {
+                console.error('Error loading feature popularity:', error);
+                return;
+            }
+
+            // Count events
+            const eventCounts = {};
+            data.forEach(event => {
+                eventCounts[event.event_name] = (eventCounts[event.event_name] || 0) + 1;
+            });
+
+            // Sort by popularity
+            const sorted = Object.entries(eventCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 8); // Top 8 features
+
+            // Update chart
+            if (charts.featuresChart) charts.featuresChart.destroy();
+            const ctx = document.getElementById('featuresChart').getContext('2d');
+            charts.featuresChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(([name]) => name.replace(/_/g, ' ')),
+                    datasets: [{
+                        data: sorted.map(([,count]) => count),
+                        backgroundColor: '#007aff',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update stats
+            document.getElementById('featuresStats').innerHTML = sorted
+                .slice(0, 5)
+                .map(([name, count]) => `
+                    <li>
+                        <span class="stats-label">${name.replace(/_/g, ' ')}</span>
+                        <span class="stats-value">${count}</span>
+                    </li>
+                `).join('');
+        }
+
+        // Conversion rate
+        async function loadConversionRate(startDate, endDate) {
+            const { data, error } = await supabase
+                .from('analytics_events')
+                .select('event_name')
+                .gte('created_at', startDate)
+                .lte('created_at', endDate + 'T23:59:59')
+                .in('event_name', ['upgrade_modal_shown', 'upgrade_started']);
+
+            if (error) {
+                console.error('Error loading conversion rate:', error);
+                return;
+            }
+
+            const modalShown = data.filter(e => e.event_name === 'upgrade_modal_shown').length;
+            const upgradeStarted = data.filter(e => e.event_name === 'upgrade_started').length;
+            const conversionRate = modalShown > 0 ? Math.round((upgradeStarted / modalShown) * 100) : 0;
+
+            document.getElementById('conversionRate').textContent = `${conversionRate}%`;
+            document.getElementById('conversionStats').innerHTML = `
+                <li>
+                    <span class="stats-label">Upgrade Modal Shown</span>
+                    <span class="stats-value">${modalShown}</span>
+                </li>
+                <li>
+                    <span class="stats-label">Upgrade Started</span>
+                    <span class="stats-value">${upgradeStarted}</span>
+                </li>
+                <li>
+                    <span class="stats-label">Conversion Rate</span>
+                    <span class="stats-value">${conversionRate}%</span>
+                </li>
+            `;
+        }
+
+        // Browser/Device data
+        async function loadBrowserData(startDate, endDate) {
+            const { data, error } = await supabase
+                .from('analytics_events')
+                .select('user_agent')
+                .gte('created_at', startDate)
+                .lte('created_at', endDate + 'T23:59:59')
+                .not('user_agent', 'is', null);
+
+            if (error) {
+                console.error('Error loading browser data:', error);
+                return;
+            }
+
+            // Simple browser detection
+            const browsers = {};
+            data.forEach(event => {
+                const ua = event.user_agent;
+                let browser = 'Other';
+                
+                if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+                else if (ua.includes('Firefox')) browser = 'Firefox';
+                else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+                else if (ua.includes('Edg')) browser = 'Edge';
+                
+                browsers[browser] = (browsers[browser] || 0) + 1;
+            });
+
+            const sorted = Object.entries(browsers).sort(([,a], [,b]) => b - a);
+
+            // Update chart
+            if (charts.browserChart) charts.browserChart.destroy();
+            const ctx = document.getElementById('browserChart').getContext('2d');
+            charts.browserChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: sorted.map(([browser]) => browser),
+                    datasets: [{
+                        data: sorted.map(([,count]) => count),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Update stats
+            document.getElementById('browserStats').innerHTML = sorted
+                .slice(0, 5)
+                .map(([browser, count]) => `
+                    <li>
+                        <span class="stats-label">${browser}</span>
+                        <span class="stats-value">${count}</span>
+                    </li>
+                `).join('');
+        }
+
+        // Daily usage patterns
+        async function loadDailyUsage(startDate, endDate) {
+            const { data, error } = await supabase
+                .from('analytics_events')
+                .select('created_at')
+                .gte('created_at', startDate)
+                .lte('created_at', endDate + 'T23:59:59')
+                .order('created_at');
+
+            if (error) {
+                console.error('Error loading daily usage:', error);
+                return;
+            }
+
+            // Group by date
+            const dailyCounts = {};
+            data.forEach(event => {
+                const date = event.created_at.split('T')[0];
+                dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+            });
+
+            const sorted = Object.entries(dailyCounts).sort(([a], [b]) => a.localeCompare(b));
+
+            // Update chart
+            if (charts.dailyChart) charts.dailyChart.destroy();
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+            charts.dailyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sorted.map(([date]) => new Date(date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Daily Events',
+                        data: sorted.map(([,count]) => count),
+                        borderColor: '#007aff',
+                        backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update stats
+            const totalEvents = Object.values(dailyCounts).reduce((a, b) => a + b, 0);
+            const avgDaily = totalEvents / Object.keys(dailyCounts).length || 0;
+            const peakDay = sorted.reduce((max, [date, count]) => count > max.count ? {date, count} : max, {date: '', count: 0});
+
+            document.getElementById('dailyStats').innerHTML = `
+                <li>
+                    <span class="stats-label">Total Events</span>
+                    <span class="stats-value">${totalEvents}</span>
+                </li>
+                <li>
+                    <span class="stats-label">Average Daily</span>
+                    <span class="stats-value">${Math.round(avgDaily)}</span>
+                </li>
+                <li>
+                    <span class="stats-label">Peak Day</span>
+                    <span class="stats-value">${new Date(peakDay.date).toLocaleDateString()} (${peakDay.count})</span>
+                </li>
+            `;
+        }
+
+        // Retention data
+        async function loadRetentionData(startDate, endDate) {
+            const { data, error } = await supabase
+                .from('analytics_events')
+                .select('session_id, created_at')
+                .gte('created_at', startDate)
+                .lte('created_at', endDate + 'T23:59:59')
+                .order('created_at');
+
+            if (error) {
+                console.error('Error loading retention data:', error);
+                return;
+            }
+
+            // Group by session and count days
+            const sessionDays = {};
+            data.forEach(event => {
+                const sessionId = event.session_id;
+                const date = event.created_at.split('T')[0];
+                
+                if (!sessionDays[sessionId]) {
+                    sessionDays[sessionId] = new Set();
+                }
+                sessionDays[sessionId].add(date);
+            });
+
+            const totalSessions = Object.keys(sessionDays).length;
+            const returningSessions = Object.values(sessionDays).filter(dates => dates.size > 1).length;
+            const retentionRate = totalSessions > 0 ? Math.round((returningSessions / totalSessions) * 100) : 0;
+
+            document.getElementById('retentionRate').textContent = `${retentionRate}%`;
+            document.getElementById('retentionStats').innerHTML = `
+                <li>
+                    <span class="stats-label">Total Sessions</span>
+                    <span class="stats-value">${totalSessions}</span>
+                </li>
+                <li>
+                    <span class="stats-label">Returning Sessions</span>
+                    <span class="stats-value">${returningSessions}</span>
+                </li>
+                <li>
+                    <span class="stats-label">Retention Rate</span>
+                    <span class="stats-value">${retentionRate}%</span>
+                </li>
+            `;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>

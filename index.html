@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Cat - RSVP Tracker & Todo List</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Authentication Container -->
+    <div id="authContainer" class="auth-container">
+        <h1>🎉 Party Cat</h1>
+        
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+            <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="loginPassword" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')" title="Show password">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="auth-button" id="loginButton">Login</button>
+            <div class="forgot-password">
+                <button type="button" class="forgot-password-link" onclick="showForgotPassword()">Forgot your password?</button>
+            </div>
+            <div id="loginError" class="error-message"></div>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotPasswordForm" class="auth-form" onsubmit="handleForgotPassword(event)">
+            <div class="form-group">
+                <label for="resetEmail">Email Address</label>
+                <input type="email" id="resetEmail" required placeholder="Enter your email address">
+                <small>We'll send you a link to reset your password</small>
+            </div>
+            <button type="submit" class="auth-button" id="resetButton">Send Reset Link</button>
+            <div class="forgot-password">
+                <button type="button" class="forgot-password-link" onclick="showLogin()">Back to Login</button>
+            </div>
+            <div id="forgotError" class="error-message"></div>
+            <div id="forgotSuccess" class="success-message"></div>
+        </form>
+
+        <!-- Sign Up Form -->
+        <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="signupPassword" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('signupPassword')" title="Show password">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="signupConfirmPassword">Confirm Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="signupConfirmPassword" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('signupConfirmPassword')" title="Show password">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="auth-button" id="signupButton">Sign Up</button>
+            <div id="signupError" class="error-message"></div>
+            <div id="signupSuccess" class="success-message"></div>
+        </form>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="container hidden" id="appContainer">
+        <!-- App Header -->
+        <div class="app-header">
+            <!-- Storage Toggle -->
+            <div class="storage-toggle">
+                <span class="toggle-label" id="localLabel">Save Locally</span>
+                <label class="toggle-container">
+                    <input type="checkbox" class="toggle-input" id="storageToggle" onchange="handleStorageToggle()">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label" id="cloudLabel">Save to Account</span>
+            </div>
+            
+            <!-- Header Actions -->
+            <div class="header-actions">
+                <button class="clear-data-btn" onclick="clearAllData()">Clear Data</button>
+                <button class="login-btn" id="authButton" onclick="handleAuthAction()">Login</button>
+            </div>
+        </div>
+        
+        <h1 id="partyTitle" class="editable-title" onclick="editPartyTitle()">😸 Party Time Meow!</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('rsvp')">RSVP Tracker</button>
+            <button class="tab" onclick="switchTab('todo')">Todo List</button>
+            <button class="tab" onclick="switchTab('shopping')">Shopping List</button>
+        </div>
+        
+        <div class="tab-content active" id="rsvp">
+            <div class="add-guest">
+                <input type="text" id="guestName" placeholder="Enter guest name..." onkeydown="if(event.key==='Enter') {event.preventDefault(); addGuest(); return false;}" />
+                <button type="button" onclick="addGuest()">Add Guest</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalGuests">0</div>
+                    <div class="stat-label">Total Invited</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="yesCount">0</div>
+                    <div class="stat-label">Coming</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="noCount">0</div>
+                    <div class="stat-label">Not Coming</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="pendingCount">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+
+            <div class="guest-list" id="guestList">
+                <div class="empty-state">
+                    <p>No guests added yet. Start by adding some names above!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="todo">
+            <div class="add-todo">
+                <input type="text" id="todoInput" placeholder="Add party tasks (food, decorations, etc.)..." onkeydown="if(event.key==='Enter') {event.preventDefault(); addTodo(); return false;}" />
+                <button type="button" onclick="addTodo()">Add Task</button>
+            </div>
+
+            <div class="todo-stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalTodos">0</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="completedTodos">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="pendingTodos">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+
+            <div class="todo-list" id="todoList">
+                <div class="empty-state">
+                    <p>No tasks added yet. Start by adding some party preparation tasks!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="shopping">
+            <div class="add-shopping-item">
+                <input type="text" id="shoppingItem" placeholder="Enter item (balloons, cake, drinks)..." onkeydown="if(event.key==='Enter') {event.preventDefault(); addShoppingItem(); return false;}" />
+                <button type="button" onclick="addShoppingItem()">Add Item</button>
+            </div>
+
+            <div class="shopping-stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalItems">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="boughtItems">0</div>
+                    <div class="stat-label">Bought</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="pendingItems">0</div>
+                    <div class="stat-label">Still Need</div>
+                </div>
+            </div>
+
+            <div class="shopping-list" id="shoppingList">
+                <div class="empty-state">
+                    <p>No items added yet. Start by adding some party supplies!</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-backdrop" onclick="hideConfirmModal()"></div>
+        <div class="modal-content">
+            <h2>⚠️ Clear Data</h2>
+            <p>Are you sure you want to reset your party space?</p>
+            <div class="modal-warning">
+                <p>This will permanently delete:</p>
+                <ul>
+                    <li>All guests and their RSVP status</li>
+                    <li>All todo items</li>
+                    <li>All shopping list items</li>
+                    <li>Background settings</li>
+                </ul>
+                <p><strong>This action cannot be undone!</strong></p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-cancel" onclick="hideConfirmModal()">Cancel</button>
+                <button class="modal-btn modal-confirm" onclick="confirmClearData()">Clear Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upgrade Modal -->
+    <div id="upgradeModal" class="modal hidden">
+        <div class="modal-backdrop" onclick="hideUpgradeModal()"></div>
+        <div class="modal-content">
+            <h2>☁️ Save to Account</h2>
+            <p>An account means you can access your party space and data across multiple devices. Without an account, data is stored locally in your browser. It will persist between sessions, but would be lost if you clear your cache.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-cancel" onclick="hideUpgradeModal()">Maybe Later</button>
+                <button class="modal-btn modal-confirm" onclick="startUpgrade()">Create Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background toggle button -->
+    <button class="bg-toggle" onclick="
+        document.body.classList.remove('bg-grey', 'bg-blue', 'bg-purple', 'bg-red');
+        if (!window.bgIndex) window.bgIndex = 0;
+        window.bgIndex = (window.bgIndex + 1) % 5;
+        if (window.bgIndex === 1) {
+            document.body.classList.add('bg-grey');
+        } else if (window.bgIndex === 2) {
+            document.body.classList.add('bg-blue');
+        } else if (window.bgIndex === 3) {
+            document.body.classList.add('bg-purple');
+        } else if (window.bgIndex === 4) {
+            document.body.classList.add('bg-red');
+        }
+        localStorage.setItem('partycat-bg', window.bgIndex);
+    " title="Change background">🎨</button>
+
+    <script>
+        // Load saved background preference
+        (function() {
+            const saved = localStorage.getItem('partycat-bg');
+            if (saved) {
+                window.bgIndex = parseInt(saved);
+                if (window.bgIndex === 1) {
+                    document.body.classList.add('bg-grey');
+                } else if (window.bgIndex === 2) {
+                    document.body.classList.add('bg-blue');
+                } else if (window.bgIndex === 3) {
+                    document.body.classList.add('bg-purple');
+                } else if (window.bgIndex === 4) {
+                    document.body.classList.add('bg-red');
+                }
+            }
+        })();
+
+        // Supabase configuration - loaded from config.js
+        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
+
+        // Global variable to store the access token
+        let currentAccessToken = null;
+
+        // Guest mode data persistence functions
+        function saveGuestsToStorage() {
+            if (isGuestMode) {
+                localStorage.setItem('partyGuests', JSON.stringify(guests));
+            }
+        }
+
+        function saveTodosToStorage() {
+            if (isGuestMode) {
+                localStorage.setItem('partyTodos', JSON.stringify(todos));
+            }
+        }
+
+        // Anonymous analytics tracking - sends to Supabase for aggregated insights
+        async function trackEvent(eventName, properties = {}) {
+            try {
+                const event = {
+                    event_name: eventName,
+                    session_id: getSessionId(),
+                    properties: properties,
+                    user_agent: navigator.userAgent,
+                    url: window.location.href
+                };
+                
+                // Send to Supabase analytics table
+                await fetch(`${SUPABASE_URL}/rest/v1/analytics_events`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(event)
+                });
+            } catch (e) {
+                // Fail silently for analytics
+                console.debug('Analytics error:', e);
+            }
+        }
+
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('partycat-session');
+            if (!sessionId) {
+                sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                sessionStorage.setItem('partycat-session', sessionId);
+            }
+            return sessionId;
+        }
+
+
+        // Helper function to get authenticated headers
+        function getAuthHeaders() {
+            if (!currentAccessToken) {
+                console.error('No access token available');
+                // Fallback to anon key
+                return {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json'
+                };
+            }
+            
+            return {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${currentAccessToken}`,
+                'Content-Type': 'application/json'
+            };
+        }
+        
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Authentication state
+        let currentUser = null;
+        let currentParty = null;
+        let isGuestMode = true;
+        
+        // Authentication functions
+        async function checkAuth() {
+            try {
+                // Use timeout to avoid hanging
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Auth check timeout')), 5000)
+                );
+                
+                const sessionPromise = supabase.auth.getSession();
+                const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]);
+                
+                if (error) {
+                    console.error('Error checking auth:', error);
+                    return false;
+                }
+                
+                if (session && session.user) {
+                    currentUser = session.user;
+                    currentAccessToken = session.access_token;
+                    return true;
+                }
+                
+                return false;
+            } catch (e) {
+                console.error('Auth check failed or timed out:', e);
+                return false;
+            }
+        }
+        
+        async function signUp(email, password) {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+            });
+            if (error) {
+                console.error('Error signing up:', error);
+                return { success: false, error: error.message };
+            }
+            return { success: true, user: data.user };
+        }
+        
+        async function signIn(email, password) {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+            if (error) {
+                console.error('Error signing in:', error);
+                return { success: false, error: error.message };
+            }
+            currentUser = data.user;
+            return { success: true, user: data.user };
+        }
+        
+        async function signOut() {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error signing out:', error);
+                // Even if signOut fails (e.g., session already gone), we should still 
+                // clear local state and treat it as successful logout
+                if (error.message && error.message.includes('Auth session missing')) {
+                    console.log('Session already missing, proceeding with logout');
+                } else {
+                    return false;
+                }
+            }
+            currentUser = null;
+            currentParty = null;
+            isGuestMode = true;
+            return true;
+        }
+
+        // Authentication UI handlers
+        function clearAuthMessages() {
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('signupError').textContent = '';
+            document.getElementById('signupSuccess').textContent = '';
+            document.getElementById('forgotError').textContent = '';
+            document.getElementById('forgotSuccess').textContent = '';
+        }
+        
+        function switchAuthTab(tab) {
+            // Clear any error messages
+            clearAuthMessages();
+            
+            // Make sure auth tabs are visible
+            document.querySelector('.auth-tabs').style.display = 'flex';
+            
+            // Update tab appearance
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelector('.auth-tab').classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('signupForm').classList.add('active');
+            }
+        }
+
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleButton = passwordInput.nextElementSibling;
+            
+            const visibilityIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            </svg>`;
+            
+            const visibilityOffIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+            </svg>`;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.innerHTML = visibilityOffIcon;
+                toggleButton.title = 'Hide password';
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.innerHTML = visibilityIcon;
+                toggleButton.title = 'Show password';
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginButton = document.getElementById('loginButton');
+            const errorDiv = document.getElementById('loginError');
+            
+            loginButton.disabled = true;
+            loginButton.textContent = 'Logging in...';
+            errorDiv.textContent = '';
+            
+            const result = await signIn(email, password);
+            
+            if (result.success) {
+                await initializeApp();
+            } else {
+                errorDiv.textContent = result.error;
+            }
+            
+            loginButton.disabled = false;
+            loginButton.textContent = 'Login';
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const signupButton = document.getElementById('signupButton');
+            const errorDiv = document.getElementById('signupError');
+            const successDiv = document.getElementById('signupSuccess');
+            
+            errorDiv.textContent = '';
+            successDiv.textContent = '';
+            
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            signupButton.disabled = true;
+            signupButton.textContent = 'Signing up...';
+            
+            const result = await signUp(email, password);
+            
+            if (result.success) {
+                // Create a party for the new user
+                await createInitialParty(result.user.id);
+                successDiv.textContent = 'Account created! Please check your email to verify your account, then you can login.';
+                document.getElementById('signupForm').reset();
+            } else {
+                errorDiv.textContent = result.error;
+            }
+            
+            signupButton.disabled = false;
+            signupButton.textContent = 'Sign Up';
+        }
+
+        // Forgot password functions
+        function showForgotPassword() {
+            // Clear any error messages
+            clearAuthMessages();
+            
+            // Hide all forms and show forgot password form
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById('forgotPasswordForm').classList.add('active');
+            
+            // Hide auth tabs when in forgot password mode
+            document.querySelector('.auth-tabs').style.display = 'none';
+        }
+
+        function showLogin() {
+            // Clear any error messages
+            clearAuthMessages();
+            
+            // Show auth tabs again
+            document.querySelector('.auth-tabs').style.display = 'flex';
+            
+            // Switch back to login tab
+            switchAuthTab('login');
+        }
+
+        async function handleForgotPassword(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('resetEmail').value;
+            const resetButton = document.getElementById('resetButton');
+            const errorDiv = document.getElementById('forgotError');
+            const successDiv = document.getElementById('forgotSuccess');
+            
+            resetButton.disabled = true;
+            resetButton.textContent = 'Sending...';
+            errorDiv.textContent = '';
+            successDiv.textContent = '';
+            
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + window.location.pathname
+                });
+                
+                if (error) {
+                    errorDiv.textContent = error.message;
+                } else {
+                    successDiv.textContent = 'Password reset link sent! Check your email inbox.';
+                    document.getElementById('forgotPasswordForm').reset();
+                    
+                    // Automatically go back to login after 3 seconds
+                    setTimeout(() => {
+                        showLogin();
+                    }, 3000);
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Failed to send reset email. Please try again.';
+            }
+            
+            resetButton.disabled = false;
+            resetButton.textContent = 'Send Reset Link';
+        }
+
+        async function createInitialParty(userId) {
+            try {
+                const headers = await getAuthHeaders();
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/parties`, {
+                    method: 'POST',
+                    headers: {
+                        ...headers,
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        name: '😸 Party Time Meow!',
+                        description: 'My awesome party!'
+                    })
+                });
+                
+                if (!response.ok) {
+                    console.error('Failed to create initial party:', await response.text());
+                }
+            } catch (e) {
+                console.error('Error creating initial party:', e);
+            }
+        }
+
+        function clearAllData() {
+            if (!currentParty) {
+                alert('No party found');
+                return;
+            }
+
+            // Show custom confirmation modal
+            showConfirmModal();
+        }
+
+        function showConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function hideConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        function showUpgradeModal() {
+            document.getElementById('upgradeModal').classList.remove('hidden');
+            trackEvent('upgrade_modal_shown');
+        }
+
+        function hideUpgradeModal() {
+            document.getElementById('upgradeModal').classList.add('hidden');
+        }
+
+        function startUpgrade() {
+            hideUpgradeModal();
+            // Switch to signup tab and show auth container
+            switchAuthTab('signup');
+            showAuthContainer();
+            trackEvent('upgrade_started');
+        }
+
+        async function confirmClearData() {
+            hideConfirmModal();
+
+            if (isGuestMode) {
+                // Guest mode: clear localStorage
+                guests = [];
+                todos = [];
+                shoppingItems = [];
+                currentParty.name = '😸 Party Time Meow!';
+                
+                // Clear localStorage
+                localStorage.removeItem('partyGuests');
+                localStorage.removeItem('partyTodos');
+                localStorage.removeItem('partyShoppingItems');
+                
+                // Update UI
+                document.getElementById('partyTitle').textContent = '😸 Party Time Meow!';
+                renderGuests();
+                renderTodos();
+                renderShoppingItems();
+                
+                trackEvent('data_cleared', { guestMode: true });
+            } else {
+                // Cloud mode: clear Supabase data
+                try {
+                    const headers = await getAuthHeaders();
+                    
+                    // Delete all guests for this party
+                    const guestsResponse = await fetch(`${SUPABASE_URL}/rest/v1/guests?party_id=eq.${currentParty.id}`, {
+                        method: 'DELETE',
+                        headers
+                    });
+
+                    // Delete all todos for this party
+                    const todosResponse = await fetch(`${SUPABASE_URL}/rest/v1/todos?party_id=eq.${currentParty.id}`, {
+                        method: 'DELETE',
+                        headers
+                    });
+
+                    // Reset party title to default
+                    const partyResponse = await fetch(`${SUPABASE_URL}/rest/v1/parties?id=eq.${currentParty.id}`, {
+                        method: 'PATCH',
+                        headers,
+                        body: JSON.stringify({
+                            name: '😸 Party Time Meow!'
+                        })
+                    });
+
+                    if (guestsResponse.ok && todosResponse.ok && partyResponse.ok) {
+                        // Clear local arrays
+                        guests = [];
+                        todos = [];
+                        
+                        // Update party title in current object and UI
+                        currentParty.name = '😸 Party Time Meow!';
+                        document.getElementById('partyTitle').textContent = '😸 Party Time Meow!';
+                        
+                        // Update UI
+                        renderGuests();
+                        renderTodos();
+                        
+                        trackEvent('data_cleared', { guestMode: false });
+                    } else {
+                        console.error('Error clearing data:', 
+                            'Guests:', guestsResponse.status, 
+                            'Todos:', todosResponse.status);
+                        alert('Failed to clear some data. Please try again.');
+                    }
+                } catch (e) {
+                    console.error('Error clearing data:', e);
+                    alert('Failed to clear data. Please try again.');
+                }
+            }
+        }
+
+        async function handleLogout() {
+            const success = await signOut();
+            if (success) {
+                await initializeGuestMode();
+                showAuthContainer();
+            }
+        }
+
+        function showAuthContainer() {
+            document.getElementById('authContainer').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+        }
+
+        function showAppContainer() {
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            
+            // Update header based on authentication state
+            updateHeaderState();
+        }
+
+        function updateHeaderState() {
+            const toggle = document.getElementById('storageToggle');
+            const localLabel = document.getElementById('localLabel');
+            const cloudLabel = document.getElementById('cloudLabel');
+            const authButton = document.getElementById('authButton');
+            
+            if (isGuestMode) {
+                // Guest mode - toggle is off (Save Locally active)
+                toggle.checked = false;
+                localLabel.classList.remove('inactive');
+                cloudLabel.classList.add('inactive');
+                authButton.textContent = 'Login';
+                authButton.onclick = () => showAuthContainer();
+            } else {
+                // Authenticated mode - toggle is on (Save to Account active)
+                toggle.checked = true;
+                localLabel.classList.add('inactive');
+                cloudLabel.classList.remove('inactive');
+                authButton.textContent = 'Logout';
+                authButton.onclick = () => handleLogout();
+            }
+        }
+
+        function handleStorageToggle() {
+            const toggle = document.getElementById('storageToggle');
+            
+            if (toggle.checked && isGuestMode) {
+                // User wants to switch to cloud storage
+                showUpgradeModal();
+                // Reset toggle since we haven't actually switched yet
+                toggle.checked = false;
+            } else if (!toggle.checked && !isGuestMode) {
+                // User wants to logout and go to guest mode
+                handleLogout();
+            }
+        }
+
+        function handleAuthAction() {
+            if (isGuestMode) {
+                showAuthContainer();
+            } else {
+                handleLogout();
+            }
+        }
+
+        async function initializeApp() {
+            
+            if (!currentUser) {
+                console.error('No currentUser in initializeApp');
+                return;
+            }
+            
+            isGuestMode = false;
+            showAppContainer();
+            
+            // Load the user's party
+            await loadUserParty();
+            
+            // Initialize the app with the current party
+            await loadPartyData();
+        }
+
+        async function loadUserParty() {
+            if (!currentUser) {
+                console.error('No current user found');
+                return;
+            }
+            
+            try {
+                const headers = getAuthHeaders();
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/parties?user_id=eq.${currentUser.id}&limit=1`, { headers });
+                
+                if (response.ok) {
+                    const parties = await response.json();
+                    if (parties.length > 0) {
+                        currentParty = parties[0];
+                        updatePartyTitle();
+                    } else {
+                        console.error('No party found for user - creating one...');
+                        await createInitialParty(currentUser.id);
+                        await loadUserParty(); // Retry after creating
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('Error loading party. Status:', response.status, 'Error:', errorText);
+                    alert('Failed to load party. Please try again.');
+                }
+            } catch (e) {
+                console.error('Error in loadUserParty:', e);
+                alert('Failed to load party. Please try again.');
+            }
+        }
+
+
+        function updatePartyTitle() {
+            const titleElement = document.getElementById('partyTitle');
+            titleElement.textContent = currentParty.name;
+        }
+
+        function editPartyTitle() {
+            if (!currentParty) {
+                alert('Please create a party first');
+                return;
+            }
+
+            const titleElement = document.getElementById('partyTitle');
+            const currentTitle = currentParty.name;
+            
+            // Create input field that includes the full title
+            titleElement.classList.add('editing');
+            titleElement.innerHTML = `<input type="text" class="title-input" value="${currentTitle}" onblur="savePartyTitle(this)" onkeypress="handleTitleKeypress(event, this)" autofocus>`;
+            
+            // Focus and select the text
+            const input = titleElement.querySelector('.title-input');
+            input.focus();
+            input.select();
+        }
+
+        function handleTitleKeypress(event, input) {
+            if (event.key === 'Enter') {
+                input.blur(); // This will trigger savePartyTitle
+            }
+            if (event.key === 'Escape') {
+                cancelTitleEdit();
+            }
+        }
+
+        function cancelTitleEdit() {
+            const titleElement = document.getElementById('partyTitle');
+            titleElement.classList.remove('editing');
+            updatePartyTitle();
+        }
+
+        async function savePartyTitle(input) {
+            const newTitle = input.value.trim();
+            
+            if (!newTitle) {
+                alert('Party title cannot be empty');
+                cancelTitleEdit();
+                return;
+            }
+            
+            if (newTitle === currentParty.name) {
+                // No change
+                cancelTitleEdit();
+                return;
+            }
+            
+            if (isGuestMode) {
+                // Guest mode: just update the local object
+                currentParty.name = newTitle;
+                const titleElement = document.getElementById('partyTitle');
+                titleElement.classList.remove('editing');
+                updatePartyTitle();
+                trackEvent('title_updated', { guestMode: true });
+            } else {
+                // Cloud mode: update Supabase
+                try {
+                    const headers = await getAuthHeaders();
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/parties?id=eq.${currentParty.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            ...headers,
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify({ name: newTitle })
+                    });
+
+                    if (response.ok) {
+                        currentParty.name = newTitle;
+                        const titleElement = document.getElementById('partyTitle');
+                        titleElement.classList.remove('editing');
+                        updatePartyTitle();
+                        trackEvent('title_updated', { guestMode: false });
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Error updating party name:', errorText);
+                        alert('Failed to update party name. Please try again.');
+                        cancelTitleEdit();
+                    }
+                } catch (e) {
+                    console.error('Error updating party name:', e);
+                    alert('Failed to update party name. Please try again.');
+                    cancelTitleEdit();
+                }
+            }
+        }
+
+
+        async function loadPartyData() {
+            if (!currentParty) return;
+            
+            // Load guests, todos, and shopping items from Supabase
+            await loadGuests();
+            await loadTodos();
+            await loadShoppingItems();
+        }
+
+        async function loadGuests() {
+            if (!currentParty) return;
+            
+            try {
+                const headers = await getAuthHeaders();
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/guests?party_id=eq.${currentParty.id}&order=created_at.desc`, {
+                    headers
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    guests = data || [];
+                    renderGuests();
+                } else {
+                    console.error('Error loading guests:', await response.text());
+                }
+            } catch (e) {
+                console.error('Error loading guests:', e);
+            }
+        }
+
+        async function loadTodos() {
+            if (!currentParty) return;
+            
+            try {
+                const headers = await getAuthHeaders();
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?party_id=eq.${currentParty.id}&order=created_at.desc`, {
+                    headers
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    todos = data || [];
+                    renderTodos();
+                } else {
+                    console.error('Error loading todos:', await response.text());
+                }
+            } catch (e) {
+                console.error('Error loading todos:', e);
+            }
+        }
+        
+        // Data arrays for the current party
+        let guests = [];
+        let todos = [];
+        let shoppingItems = [];
+
+        function parseGuestCount(name) {
+            const connectingWords = ['and', '&', '+', 'with', 'plus'];
+            const familyWords = ['family', 'families'];
+            
+            const lowerName = name.toLowerCase();
+            
+            // Check for family keywords
+            if (familyWords.some(word => lowerName.includes(word))) {
+                return 4;
+            }
+            
+            // Check for commas first (simple comma-separated names like "Joe, Kate, Ben")
+            if (name.includes(',')) {
+                const commaSegments = name.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                return commaSegments.length;
+            }
+            
+            // Replace punctuation that clearly indicates multiple people
+            let text = name.replace(/[;&+]/g, ' and ');
+            
+            // Check if any connecting words are present (indicates multiple people)
+            const hasConnectingWords = connectingWords.some(word => {
+                if (word === '&') {
+                    // Special handling for & symbol - just check if it exists
+                    return name.includes('&');
+                }
+                // Escape special regex characters
+                const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const pattern = new RegExp('\\b' + escapedWord + '\\b', 'i');
+                return pattern.test(name);
+            });
+            
+            if (hasConnectingWords) {
+                // Split by connecting words and count distinct groups
+                let segments = text.toLowerCase();
+                connectingWords.forEach(word => {
+                    if (word === '&') {
+                        // Special handling for & symbol
+                        segments = segments.replace(/&/g, '|');
+                    } else {
+                        // Escape special regex characters
+                        const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        segments = segments.replace(new RegExp('\\b' + escapedWord + '\\b', 'g'), '|');
+                    }
+                });
+                const groups = segments.split('|').filter(group => group.trim().length > 0);
+                return Math.max(1, groups.length);
+            }
+            
+            // No connecting words found - treat as single person (even if multiple words like "John Smith")
+            return 1;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        async function addTodo() {
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            
+            if (text === '') {
+                alert('Please enter a task');
+                return;
+            }
+
+            const newTodo = {
+                party_id: currentParty.id,
+                text: text,
+                completed: false
+            };
+
+            if (isGuestMode) {
+                // Guest mode: add to localStorage
+                newTodo.id = Date.now(); // Simple ID for guest mode
+                todos.unshift(newTodo);
+                saveTodosToStorage();
+                input.value = '';
+                renderTodos();
+                trackEvent('todo_added', { guestMode: true });
+            } else {
+                // Cloud mode: save to Supabase
+                try {
+                    const headers = await getAuthHeaders();
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/todos`, {
+                        method: 'POST',
+                        headers: {
+                            ...headers,
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify(newTodo)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const todoData = Array.isArray(data) ? data[0] : data;
+                        todos.unshift(todoData);
+                        input.value = '';
+                        renderTodos();
+                        trackEvent('todo_added', { guestMode: false });
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Error adding todo:', errorText);
+                        alert('Failed to add task. Please try again.');
+                    }
+                } catch (e) {
+                    console.error('Error adding todo:', e);
+                    alert('Failed to add task. Please try again.');
+                }
+            }
+        }
+
+        async function toggleTodo(todoId) {
+            const todo = todos.find(t => t.id == todoId);
+            if (todo) {
+                const newCompleted = !todo.completed;
+                
+                if (isGuestMode) {
+                    todo.completed = newCompleted;
+                    saveTodosToStorage();
+                    renderTodos();
+                    trackEvent('todo_toggled', { completed: newCompleted, guestMode: true });
+                } else {
+                    try {
+                        const headers = await getAuthHeaders();
+                        const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${todoId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                ...headers,
+                                'Prefer': 'return=representation'
+                            },
+                            body: JSON.stringify({ completed: newCompleted })
+                        });
+
+                        if (response.ok) {
+                            todo.completed = newCompleted;
+                            renderTodos();
+                            trackEvent('todo_toggled', { completed: newCompleted, guestMode: false });
+                        } else {
+                            const errorText = await response.text();
+                            console.error('Error toggling todo:', errorText);
+                            alert('Failed to update task. Please try again.');
+                        }
+                    } catch (e) {
+                        console.error('Error toggling todo:', e);
+                        alert('Failed to update task. Please try again.');
+                    }
+                }
+            }
+        }
+
+        async function deleteTodo(todoId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                if (isGuestMode) {
+                    todos = todos.filter(t => t.id != todoId);
+                    saveTodosToStorage();
+                    renderTodos();
+                    trackEvent('todo_deleted', { guestMode: true });
+                } else {
+                    try {
+                        const headers = await getAuthHeaders();
+                        const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${todoId}`, {
+                            method: 'DELETE',
+                            headers
+                        });
+
+                        if (response.ok) {
+                            todos = todos.filter(t => t.id !== todoId);
+                            renderTodos();
+                            trackEvent('todo_deleted', { guestMode: false });
+                        } else {
+                            const errorText = await response.text();
+                            console.error('Error deleting todo:', errorText);
+                            alert('Failed to delete task. Please try again.');
+                        }
+                    } catch (e) {
+                        console.error('Error deleting todo:', e);
+                        alert('Failed to delete task. Please try again.');
+                    }
+                }
+            }
+        }
+
+        function renderTodos() {
+            const todoList = document.getElementById('todoList');
+            
+            if (todos.length === 0) {
+                todoList.innerHTML = '<div class="empty-state"><p>No tasks added yet. Start by adding some party preparation tasks!</p></div>';
+                updateTodoStats();
+                return;
+            }
+
+            todoList.innerHTML = todos.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <div class="todo-text">${todo.text}</div>
+                    <div class="todo-actions">
+                        <button class="btn ${todo.completed ? 'btn-pending' : 'btn-yes'}" onclick="toggleTodo('${todo.id}')">
+                            ${todo.completed ? 'Undo' : 'Done'}
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteTodo('${todo.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateTodoStats();
+        }
+
+        function updateTodoStats() {
+            const total = todos.length;
+            const completed = todos.filter(t => t.completed).length;
+            const pending = total - completed;
+
+            document.getElementById('totalTodos').textContent = total;
+            document.getElementById('completedTodos').textContent = completed;
+            document.getElementById('pendingTodos').textContent = pending;
+        }
+
+        // Shopping List Functions
+        function saveShoppingItemsToStorage() {
+            if (isGuestMode) {
+                localStorage.setItem('partyShoppingItems', JSON.stringify(shoppingItems));
+            }
+        }
+
+        async function loadShoppingItems() {
+            if (isGuestMode) {
+                const stored = localStorage.getItem('partyShoppingItems');
+                if (stored) {
+                    shoppingItems = JSON.parse(stored);
+                }
+                renderShoppingItems();
+            } else {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items?party_id=eq.${currentParty.id}&order=created_at.desc`, {
+                        method: 'GET',
+                        headers: await getAuthHeaders()
+                    });
+
+                    if (response.ok) {
+                        shoppingItems = await response.json();
+                        renderShoppingItems();
+                    } else if (response.status === 404) {
+                        // Table doesn't exist yet, initialize empty and render
+                        shoppingItems = [];
+                        renderShoppingItems();
+                        console.log('Shopping items table not found - using empty list');
+                    }
+                } catch (e) {
+                    console.error('Error loading shopping items:', e);
+                    // Initialize empty and render on error
+                    shoppingItems = [];
+                    renderShoppingItems();
+                }
+            }
+        }
+
+        async function addShoppingItem() {
+            const itemInput = document.getElementById('shoppingItem');
+            const item = itemInput.value.trim();
+            
+            if (item === '') {
+                alert('Please enter an item');
+                return;
+            }
+
+            if (!currentParty) {
+                alert('No party selected. Please refresh the page and try again.');
+                return;
+            }
+
+            const newItem = {
+                id: isGuestMode ? Date.now().toString() : crypto.randomUUID(),
+                text: item,
+                bought: false,
+                created_at: new Date().toISOString()
+            };
+
+            if (isGuestMode) {
+                shoppingItems.push(newItem);
+                saveShoppingItemsToStorage();
+                renderShoppingItems();
+                trackEvent('shopping_item_added', { guestMode: true });
+            } else {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items`, {
+                        method: 'POST',
+                        headers: await getAuthHeaders(),
+                        body: JSON.stringify({
+                            id: newItem.id,
+                            party_id: currentParty.id,
+                            text: newItem.text,
+                            bought: newItem.bought
+                        })
+                    });
+
+                    if (response.ok) {
+                        shoppingItems.push(newItem);
+                        renderShoppingItems();
+                        trackEvent('shopping_item_added', { guestMode: false });
+                    } else {
+                        alert('Failed to add item. Please try again.');
+                    }
+                } catch (e) {
+                    console.error('Error adding shopping item:', e);
+                    alert('Failed to add item. Please try again.');
+                }
+            }
+
+            itemInput.value = '';
+        }
+
+        async function toggleShoppingItem(itemId) {
+            const item = shoppingItems.find(i => i.id == itemId);
+            if (item) {
+                const newBought = !item.bought;
+                
+                if (isGuestMode) {
+                    item.bought = newBought;
+                    saveShoppingItemsToStorage();
+                    renderShoppingItems();
+                    trackEvent('shopping_item_toggled', { bought: newBought, guestMode: true });
+                } else {
+                    try {
+                        const response = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items?id=eq.${itemId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                ...(await getAuthHeaders()),
+                                'Prefer': 'return=representation'
+                            },
+                            body: JSON.stringify({ bought: newBought })
+                        });
+
+                        if (response.ok) {
+                            item.bought = newBought;
+                            renderShoppingItems();
+                            trackEvent('shopping_item_toggled', { bought: newBought, guestMode: false });
+                        } else {
+                            const errorText = await response.text();
+                            console.error('Error toggling shopping item:', errorText);
+                            alert('Failed to update item. Please try again.');
+                        }
+                    } catch (e) {
+                        console.error('Error toggling shopping item:', e);
+                        alert('Failed to update item. Please try again.');
+                    }
+                }
+            }
+        }
+
+        async function deleteShoppingItem(itemId) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                if (isGuestMode) {
+                    shoppingItems = shoppingItems.filter(i => i.id != itemId);
+                    saveShoppingItemsToStorage();
+                    renderShoppingItems();
+                    trackEvent('shopping_item_deleted', { guestMode: true });
+                } else {
+                    try {
+                        const response = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items?id=eq.${itemId}`, {
+                            method: 'DELETE',
+                            headers: await getAuthHeaders()
+                        });
+
+                        if (response.ok) {
+                            shoppingItems = shoppingItems.filter(i => i.id !== itemId);
+                            renderShoppingItems();
+                            trackEvent('shopping_item_deleted', { guestMode: false });
+                        } else {
+                            const errorText = await response.text();
+                            console.error('Error deleting shopping item:', errorText);
+                            alert('Failed to delete item. Please try again.');
+                        }
+                    } catch (e) {
+                        console.error('Error deleting shopping item:', e);
+                        alert('Failed to delete item. Please try again.');
+                    }
+                }
+            }
+        }
+
+        function renderShoppingItems() {
+            const shoppingList = document.getElementById('shoppingList');
+            
+            if (shoppingItems.length === 0) {
+                shoppingList.innerHTML = '<div class="empty-state"><p>No items added yet. Start by adding some party supplies!</p></div>';
+                updateShoppingStats();
+                return;
+            }
+
+            shoppingList.innerHTML = shoppingItems.map(item => `
+                <div class="shopping-item ${item.bought ? 'bought' : ''}">
+                    <div class="shopping-text">${item.text}</div>
+                    <div class="shopping-actions">
+                        <button class="btn ${item.bought ? 'btn-pending' : 'btn-yes'}" onclick="toggleShoppingItem('${item.id}')">
+                            ${item.bought ? 'Unbuy' : 'Bought'}
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteShoppingItem('${item.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateShoppingStats();
+        }
+
+        function updateShoppingStats() {
+            const total = shoppingItems.length;
+            const bought = shoppingItems.filter(i => i.bought).length;
+            const pending = total - bought;
+
+            document.getElementById('totalItems').textContent = total;
+            document.getElementById('boughtItems').textContent = bought;
+            document.getElementById('pendingItems').textContent = pending;
+        }
+
+        async function addGuest() {
+            const nameInput = document.getElementById('guestName');
+            const name = nameInput.value.trim();
+            
+            if (name === '') {
+                alert('Please enter a guest name');
+                return;
+            }
+
+            if (!currentParty) {
+                alert('No party selected. Please refresh the page and try again.');
+                return;
+            }
+
+            if (guests.some(guest => guest.name.toLowerCase() === name.toLowerCase())) {
+                alert('Guest already exists');
+                return;
+            }
+
+            const newGuest = {
+                party_id: currentParty.id,
+                name: name,
+                status: 'pending',
+                count: parseGuestCount(name)
+            };
+
+            if (isGuestMode) {
+                // Guest mode: add to localStorage
+                newGuest.id = Date.now(); // Simple ID for guest mode
+                guests.unshift(newGuest);
+                saveGuestsToStorage();
+                nameInput.value = '';
+                renderGuests();
+                trackEvent('guest_added', { guestMode: true });
+            } else {
+                // Cloud mode: save to Supabase
+                try {
+                    const headers = await getAuthHeaders();
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/guests`, {
+                        method: 'POST',
+                        headers: {
+                            ...headers,
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify(newGuest)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const guestData = Array.isArray(data) ? data[0] : data;
+                        guests.unshift(guestData);
+                        nameInput.value = '';
+                        renderGuests();
+                        trackEvent('guest_added', { guestMode: false });
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Error adding guest:', errorText);
+                        alert(`Failed to add guest: ${errorText}`);
+                    }
+                } catch (e) {
+                    console.error('Error adding guest:', e);
+                    alert(`Failed to add guest: ${e.message}`);
+                }
+            }
+        }
+
+        async function updateGuestStatus(guestId, status) {
+            const guest = guests.find(g => g.id == guestId);
+            if (!guest) return;
+            
+            if (isGuestMode) {
+                // Guest mode: update localStorage
+                guest.status = status;
+                saveGuestsToStorage();
+                renderGuests();
+                trackEvent('guest_status_updated', { status, guestMode: true });
+            } else {
+                // Cloud mode: update Supabase
+                try {
+                    const headers = await getAuthHeaders();
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/guests?id=eq.${guestId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            ...headers,
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify({ status: status })
+                    });
+
+                    if (response.ok) {
+                        guest.status = status;
+                        renderGuests();
+                        trackEvent('guest_status_updated', { status, guestMode: false });
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Error updating guest status:', errorText);
+                        alert('Failed to update guest status. Please try again.');
+                    }
+                } catch (e) {
+                    console.error('Error updating guest status:', e);
+                    alert('Failed to update guest status. Please try again.');
+                }
+            }
+        }
+
+        async function deleteGuest(guestId) {
+            if (confirm('Are you sure you want to remove this guest?')) {
+                if (isGuestMode) {
+                    guests = guests.filter(g => g.id != guestId);
+                    saveGuestsToStorage();
+                    renderGuests();
+                    trackEvent('guest_deleted', { guestMode: true });
+                } else {
+                    try {
+                        const headers = await getAuthHeaders();
+                        const response = await fetch(`${SUPABASE_URL}/rest/v1/guests?id=eq.${guestId}`, {
+                            method: 'DELETE',
+                            headers
+                        });
+
+                        if (response.ok) {
+                            guests = guests.filter(g => g.id !== guestId);
+                            renderGuests();
+                            trackEvent('guest_deleted', { guestMode: false });
+                        } else {
+                            const errorText = await response.text();
+                            console.error('Error deleting guest:', errorText);
+                            alert('Failed to delete guest. Please try again.');
+                        }
+                    } catch (e) {
+                        console.error('Error deleting guest:', e);
+                        alert('Failed to delete guest. Please try again.');
+                    }
+                }
+            }
+        }
+
+        function renderGuests() {
+            const guestList = document.getElementById('guestList');
+            
+            if (guests.length === 0) {
+                guestList.innerHTML = '<div class="empty-state"><p>No guests added yet. Start by adding some names above!</p></div>';
+                updateStats();
+                return;
+            }
+
+            guestList.innerHTML = guests.map(guest => `
+                <div class="guest-item ${guest.status}">
+                    <div>
+                        <span class="guest-name">${guest.name}</span>
+                        <span class="guest-count">(${guest.count || parseGuestCount(guest.name)} ${(guest.count || parseGuestCount(guest.name)) === 1 ? 'person' : 'people'})</span>
+                        <span class="status-badge status-${guest.status}">${guest.status.charAt(0).toUpperCase() + guest.status.slice(1)}</span>
+                    </div>
+                    <div class="guest-actions">
+                        <button class="btn btn-yes" onclick="updateGuestStatus('${guest.id}', 'yes')">Yes</button>
+                        <button class="btn btn-no" onclick="updateGuestStatus('${guest.id}', 'no')">No</button>
+                        <button class="btn btn-pending" onclick="updateGuestStatus('${guest.id}', 'pending')">Pending</button>
+                        <button class="btn btn-delete" onclick="deleteGuest('${guest.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = guests.reduce((sum, guest) => sum + (guest.count || parseGuestCount(guest.name)), 0);
+            const yes = guests.filter(g => g.status === 'yes').reduce((sum, guest) => sum + (guest.count || parseGuestCount(guest.name)), 0);
+            const no = guests.filter(g => g.status === 'no').reduce((sum, guest) => sum + (guest.count || parseGuestCount(guest.name)), 0);
+            const pending = guests.filter(g => g.status === 'pending').reduce((sum, guest) => sum + (guest.count || parseGuestCount(guest.name)), 0);
+
+            document.getElementById('totalGuests').textContent = total;
+            document.getElementById('yesCount').textContent = yes;
+            document.getElementById('noCount').textContent = no;
+            document.getElementById('pendingCount').textContent = pending;
+        }
+
+        document.getElementById('guestName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addGuest();
+            }
+        });
+
+        document.getElementById('todoInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        // Handle password reset flow
+        function handlePasswordReset() {
+            const hash = window.location.hash;
+            
+            if (hash.includes('access_token') && hash.includes('type=recovery')) {
+                // This is a password reset link
+                showPasswordResetForm();
+                return true;
+            } else if (hash.includes('error=access_denied') || hash.includes('error_code=otp_expired')) {
+                // Reset link expired or invalid
+                showAuthContainer();
+                document.getElementById('loginError').textContent = 'Password reset link has expired. Please request a new one.';
+                return true;
+            }
+            
+            return false;
+        }
+
+        function showPasswordResetForm() {
+            // Show a new password form (you can expand this)
+            alert('Password reset successful! You can now log in with your new password.');
+            showAuthContainer();
+            switchAuthTab('login');
+        }
+
+        // App initialization
+        async function initApp() {
+            // Check for password reset flow first
+            if (handlePasswordReset()) {
+                return; // Stop here if we're handling a password reset
+            }
+
+            // Listen for auth state changes
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                    currentUser = session.user;
+                    currentAccessToken = session.access_token;
+                    isGuestMode = false;
+                    await initializeApp();
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    currentParty = null;
+                    currentAccessToken = null;
+                    isGuestMode = true;
+                    await initializeGuestMode();
+                }
+            });
+
+            // Check if user is already logged in
+            const isAuthenticated = await checkAuth();
+            if (isAuthenticated) {
+                isGuestMode = false;
+                await initializeApp();
+            } else {
+                // Start in guest mode by default
+                isGuestMode = true;
+                await initializeGuestMode();
+            }
+        }
+
+        // Guest mode initialization
+        async function initializeGuestMode() {
+            // Create a virtual party object for guest mode
+            currentParty = {
+                id: 'guest-party',
+                name: '😸 Party Time Meow!',
+                description: 'Guest mode party'
+            };
+            
+            isGuestMode = true;
+            
+            // Load data from localStorage
+            guests = JSON.parse(localStorage.getItem('partyGuests')) || [];
+            todos = JSON.parse(localStorage.getItem('partyTodos')) || [];
+            shoppingItems = JSON.parse(localStorage.getItem('partyShoppingItems')) || [];
+            
+            // Show the app interface
+            showAppContainer();
+            
+            // Update the title and render data
+            updatePartyTitle();
+            renderGuests();
+            renderTodos();
+            renderShoppingItems();
+            
+            // Track anonymous usage
+            trackEvent('guest_mode_started');
+        }
+
+        // Initialize modal state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure modal starts hidden
+            document.getElementById('confirmModal').classList.add('hidden');
+        });
+
+        // Start the app
+        initApp();
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-love">
+                Made with 💙 for party cats!
+            </div>
+            <div class="footer-links">
+                <a href="about.html" class="footer-link">About</a>
+                <span class="footer-separator">•</span>
+                <a href="legal.html" class="footer-link">Legal</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
