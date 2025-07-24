@@ -7,14 +7,15 @@ A simple party planning web app - running live at https://partycat.app
 ## ✨ Features
 - **RSVP Tracker** - Manage guest lists with intelligent people count detection
 - **Todo Management** - Track party planning tasks with completion status
-- **Shopping Lists** - Organize items to buy with check-off functionality
+- **Shopping Lists** - Organise items to buy with check-off functionality
 - **Dual Mode Operation** - Works offline (localStorage) or online (Supabase cloud sync)
 - **Intelligent Guest Detection** - Automatically counts guests
   - "Smith Family" → 4 people
-  - "John & Jane" → 2 people  
+  - "John & Jane" → 2 people
+  - "Kate and Steve" → 2 people  
   - "Bob, Alice, Charlie" → 3 people
 
-## 🚀 Quick Start
+## 🚀 Development
 
 ### 1. Clone the Repository
 ```bash
@@ -37,7 +38,7 @@ cp config-example.js config.js
 open index.html
 ```
 
-## Supabase Setup (Optional)
+### Supabase Setup (Optional)
 If you want cloud sync functionality:
 
 1. Create a [Supabase](https://supabase.com) account
@@ -55,10 +56,10 @@ const CONFIG = {
 };
 ```
 
-## Analytics Dashboard
+### Analytics Dashboard
 Access the admin analytics dashboard at `/analytics.html` (password protected).
 
-## 🎨 Design Philosophy
+## 🎨 Design Approach
 
 - **Apple-inspired Design** - Clean, modern interface with smooth animations
 - **Mobile-First** - Responsive design that works on all devices  
@@ -75,4 +76,4 @@ Access the admin analytics dashboard at `/analytics.html` (password protected).
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the MIT License.
