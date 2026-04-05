@@ -563,6 +563,43 @@
         text-decoration: underline;
     }
 
+    .guest-mode-option {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .guest-mode-option p {
+        color: #6e6e73;
+        font-size: 14px;
+        margin: 0 0 12px 0;
+    }
+
+    .guest-mode-btn {
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        color: #007aff;
+        border: 2px solid #007aff;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .guest-mode-btn:hover {
+        background: #007aff;
+        color: white;
+    }
+
+    .guest-mode-note {
+        color: #8e8e93 !important;
+        font-size: 12px !important;
+        margin-top: 8px !important;
+    }
+
     .form-group small {
         display: block;
         color: #6e6e73;

@@ -42,6 +42,12 @@
             <div id="loginError" class="error-message"></div>
         </form>
 
+        <div class="guest-mode-option">
+            <p>or</p>
+            <button type="button" class="guest-mode-btn" onclick="startGuestMode()">Continue as Guest</button>
+            <p class="guest-mode-note">No account needed — data saves locally in your browser</p>
+        </div>
+
         <!-- Forgot Password Form -->
         <form id="forgotPasswordForm" class="auth-form" onsubmit="handleForgotPassword(event)">
             <div class="form-group">
@@ -358,7 +364,14 @@
         }
         
         // Initialize Supabase client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+        try {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.error('Failed to initialize Supabase:', e);
+        }
         
         // Authentication state
         let currentUser = null;
@@ -367,13 +380,14 @@
         
         // Authentication functions
         async function checkAuth() {
+            if (!supabaseClient) return false;
             try {
                 // Use timeout to avoid hanging
-                const timeoutPromise = new Promise((_, reject) => 
+                const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Auth check timeout')), 5000)
                 );
-                
-                const sessionPromise = supabase.auth.getSession();
+
+                const sessionPromise = supabaseClient.auth.getSession();
                 const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]);
                 
                 if (error) {
@@ -395,7 +409,8 @@
         }
         
         async function signUp(email, password) {
-            const { data, error } = await supabase.auth.signUp({
+            if (!supabaseClient) return { success: false, error: 'Cloud features are not available. Please try again later.' };
+            const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password,
             });
@@ -407,7 +422,8 @@
         }
         
         async function signIn(email, password) {
-            const { data, error } = await supabase.auth.signInWithPassword({
+            if (!supabaseClient) return { success: false, error: 'Cloud features are not available. Please try again later.' };
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email,
                 password,
             });
@@ -420,7 +436,13 @@
         }
         
         async function signOut() {
-            const { error } = await supabase.auth.signOut();
+            if (!supabaseClient) {
+                currentUser = null;
+                currentParty = null;
+                isGuestMode = true;
+                return true;
+            }
+            const { error } = await supabaseClient.auth.signOut();
             if (error) {
                 console.error('Error signing out:', error);
                 // Even if signOut fails (e.g., session already gone), we should still 
@@ -587,7 +609,13 @@
             successDiv.textContent = '';
             
             try {
-                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                if (!supabaseClient) {
+                    errorDiv.textContent = 'Cloud features are not available. Please try again later.';
+                    resetButton.disabled = false;
+                    resetButton.textContent = 'Send Reset Link';
+                    return;
+                }
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
                     redirectTo: window.location.origin + window.location.pathname
                 });
                 
@@ -1642,6 +1670,12 @@
             switchAuthTab('login');
         }
 
+        function startGuestMode() {
+            // Hide auth screen, show app in guest mode
+            isGuestMode = true;
+            initializeGuestMode();
+        }
+
         // App initialization
         async function initApp() {
             // Check for password reset flow first
@@ -1649,8 +1683,15 @@
                 return; // Stop here if we're handling a password reset
             }
 
+            if (!supabaseClient) {
+                // Supabase not available — go straight to guest mode
+                isGuestMode = true;
+                await initializeGuestMode();
+                return;
+            }
+
             // Listen for auth state changes
-            supabase.auth.onAuthStateChange(async (event, session) => {
+            supabaseClient.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                     currentUser = session.user;
                     currentAccessToken = session.access_token;
