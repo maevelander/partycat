@@ -736,6 +736,12 @@
                         headers
                     });
 
+                    // Delete all shopping items for this party
+                    const shoppingResponse = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items?party_id=eq.${currentParty.id}`, {
+                        method: 'DELETE',
+                        headers
+                    });
+
                     // Reset party title to default
                     const partyResponse = await fetch(`${SUPABASE_URL}/rest/v1/parties?id=eq.${currentParty.id}`, {
                         method: 'PATCH',
@@ -745,24 +751,27 @@
                         })
                     });
 
-                    if (guestsResponse.ok && todosResponse.ok && partyResponse.ok) {
+                    if (guestsResponse.ok && todosResponse.ok && shoppingResponse.ok && partyResponse.ok) {
                         // Clear local arrays
                         guests = [];
                         todos = [];
-                        
+                        shoppingItems = [];
+
                         // Update party title in current object and UI
                         currentParty.name = '😸 Party Time Meow!';
                         document.getElementById('partyTitle').textContent = '😸 Party Time Meow!';
-                        
+
                         // Update UI
                         renderGuests();
                         renderTodos();
-                        
+                        renderShoppingItems();
+
                         trackEvent('data_cleared', { guestMode: false });
                     } else {
-                        console.error('Error clearing data:', 
-                            'Guests:', guestsResponse.status, 
-                            'Todos:', todosResponse.status);
+                        console.error('Error clearing data:',
+                            'Guests:', guestsResponse.status,
+                            'Todos:', todosResponse.status,
+                            'Shopping:', shoppingResponse.status);
                         alert('Failed to clear some data. Please try again.');
                     }
                 } catch (e) {
