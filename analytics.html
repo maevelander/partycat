@@ -425,7 +425,7 @@
         const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
 
         // Initialize Supabase client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Check if user is authenticated for analytics access
         let currentUser = null;
@@ -511,7 +511,7 @@
 
         // Mode usage (Guest vs Account)
         async function loadModeUsage(startDate, endDate) {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('analytics_events')
                 .select('properties')
                 .gte('created_at', startDate)
@@ -570,7 +570,7 @@
 
         // Feature popularity
         async function loadFeaturePopularity(startDate, endDate) {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('analytics_events')
                 .select('event_name')
                 .gte('created_at', startDate)
@@ -637,7 +637,7 @@
 
         // Conversion rate
         async function loadConversionRate(startDate, endDate) {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('analytics_events')
                 .select('event_name')
                 .gte('created_at', startDate)
@@ -672,7 +672,7 @@
 
         // Browser/Device data
         async function loadBrowserData(startDate, endDate) {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('analytics_events')
                 .select('user_agent')
                 .gte('created_at', startDate)
@@ -737,7 +737,7 @@
 
         // Daily usage patterns
         async function loadDailyUsage(startDate, endDate) {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('analytics_events')
                 .select('created_at')
                 .gte('created_at', startDate)
@@ -816,7 +816,7 @@
 
         // Retention data
         async function loadRetentionData(startDate, endDate) {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('analytics_events')
                 .select('session_id, created_at')
                 .gte('created_at', startDate)
