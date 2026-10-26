@@ -1,6 +1,3 @@
-# Configuration files with sensitive data
-config.js
-
 # Development files
 CLAUDE.md
 .mcp.json
@@ -38,3 +35,12 @@ node_modules/
 # Build outputs
 dist/
 build/
+# Party Cat API secrets
+api/config.php
+api/config.local.php
+
+# Deploy staging
+.deploy/
+
+# Local data archives (exports from the database)
+archive/

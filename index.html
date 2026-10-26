@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Party Cat - RSVP Tracker & Todo List</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
 </head>
 <body>
     <!-- Authentication Container -->
@@ -55,12 +53,45 @@
                 <input type="email" id="resetEmail" required placeholder="Enter your email address">
                 <small>We'll send you a link to reset your password</small>
             </div>
+            <!-- Honeypot: hidden from people, filled in by simple bots -->
+            <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
             <button type="submit" class="auth-button" id="resetButton">Send Reset Link</button>
             <div class="forgot-password">
                 <button type="button" class="forgot-password-link" onclick="showLogin()">Back to Login</button>
             </div>
             <div id="forgotError" class="error-message"></div>
             <div id="forgotSuccess" class="success-message"></div>
+        </form>
+
+        <!-- Reset Password Form (opened from the emailed link) -->
+        <form id="resetPasswordForm" class="auth-form" onsubmit="handleResetPassword(event)">
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="newPassword" required minlength="8">
+                    <button type="button" class="password-toggle" onclick="togglePassword('newPassword')" title="Show password">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirmNewPassword">Confirm New Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="confirmNewPassword" required minlength="8">
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmNewPassword')" title="Show password">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="auth-button" id="resetPasswordButton">Set New Password</button>
+            <div class="forgot-password">
+                <button type="button" class="forgot-password-link" onclick="showLogin()">Back to Login</button>
+            </div>
+            <div id="resetPasswordError" class="error-message"></div>
         </form>
 
         <!-- Sign Up Form -->
@@ -72,7 +103,7 @@
             <div class="form-group">
                 <label for="signupPassword">Password</label>
                 <div class="password-input-container">
-                    <input type="password" id="signupPassword" required minlength="6">
+                    <input type="password" id="signupPassword" required minlength="8">
                     <button type="button" class="password-toggle" onclick="togglePassword('signupPassword')" title="Show password">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
@@ -83,7 +114,7 @@
             <div class="form-group">
                 <label for="signupConfirmPassword">Confirm Password</label>
                 <div class="password-input-container">
-                    <input type="password" id="signupConfirmPassword" required minlength="6">
+                    <input type="password" id="signupConfirmPassword" required minlength="8">
                     <button type="button" class="password-toggle" onclick="togglePassword('signupConfirmPassword')" title="Show password">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
@@ -91,6 +122,8 @@
                     </button>
                 </div>
             </div>
+            <!-- Honeypot: hidden from people, filled in by simple bots -->
+            <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
             <button type="submit" class="auth-button" id="signupButton">Sign Up</button>
             <div id="signupError" class="error-message"></div>
             <div id="signupSuccess" class="success-message"></div>
@@ -287,12 +320,26 @@
             }
         })();
 
-        // Supabase configuration - loaded from config.js
-        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'YOUR_SUPABASE_URL_HERE';
-        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
+        // Call the Party Cat API (api/index.php). Sends a JSON body as POST when one is given.
+        // Login state travels in an HttpOnly session cookie, so no token handling is needed here.
+        async function api(action, body = null, params = {}) {
+            const query = new URLSearchParams({ action, ...params });
+            const response = await fetch(`api/?${query}`, body ? {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            } : {});
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || `Request failed (${response.status})`);
+            }
+            return data;
+        }
 
-        // Global variable to store the access token
-        let currentAccessToken = null;
+        // Escape user-entered text before inserting it into HTML
+        function escapeHtml(text) {
+            return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+        }
 
         // Guest mode data persistence functions
         function saveGuestsToStorage() {
@@ -307,151 +354,97 @@
             }
         }
 
-        // Anonymous analytics tracking - sends to Supabase for aggregated insights
-        async function trackEvent(eventName, properties = {}) {
+        // Anonymous visit counting: a random ID kept in this browser, sent when someone uses the app.
+        // The server counts it as a guest or account visit depending on whether you're logged in.
+        function getVisitorId() {
             try {
-                const event = {
-                    event_name: eventName,
-                    session_id: getSessionId(),
-                    properties: properties,
-                    user_agent: navigator.userAgent,
-                    url: window.location.href
-                };
-                
-                // Send to Supabase analytics table
-                await fetch(`${SUPABASE_URL}/rest/v1/analytics_events`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(event)
-                });
+                let visitorId = localStorage.getItem('partycat-visitor');
+                if (!visitorId) {
+                    visitorId = crypto.randomUUID();
+                    localStorage.setItem('partycat-visitor', visitorId);
+                }
+                return visitorId;
             } catch (e) {
-                // Fail silently for analytics
-                console.debug('Analytics error:', e);
+                return null;
             }
         }
 
-        function getSessionId() {
-            let sessionId = sessionStorage.getItem('partycat-session');
-            if (!sessionId) {
-                sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-                sessionStorage.setItem('partycat-session', sessionId);
+        async function recordVisit() {
+            const visitorId = getVisitorId();
+            if (!visitorId) return;
+            try {
+                await api('visit', { visitor_id: visitorId });
+            } catch (e) {
+                // Visit counting must never get in the way of the app
+                console.debug('Visit not recorded:', e);
             }
-            return sessionId;
         }
 
-
-        // Helper function to get authenticated headers
-        function getAuthHeaders() {
-            if (!currentAccessToken) {
-                console.error('No access token available');
-                // Fallback to anon key
-                return {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json'
-                };
-            }
-            
-            return {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${currentAccessToken}`,
-                'Content-Type': 'application/json'
+        // Guests only count once they click or type something, so bots and people who just glance
+        // at the page aren't counted. (Logged-in users count straight away: a session means a person.)
+        let waitingForInteraction = false;
+        function recordVisitOnInteraction() {
+            if (waitingForInteraction) return;
+            waitingForInteraction = true;
+            const record = event => {
+                if (!event.isTrusted) return;
+                document.removeEventListener('click', record, true);
+                document.removeEventListener('keydown', record, true);
+                waitingForInteraction = false;
+                recordVisit();
             };
+            document.addEventListener('click', record, true);
+            document.addEventListener('keydown', record, true);
         }
-        
-        // Initialize Supabase client
-        let supabaseClient = null;
-        try {
-            if (window.supabase && window.supabase.createClient) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch (e) {
-            console.error('Failed to initialize Supabase:', e);
-        }
-        
+
         // Authentication state
         let currentUser = null;
         let currentParty = null;
         let isGuestMode = true;
-        
+
         // Authentication functions
         async function checkAuth() {
-            if (!supabaseClient) return false;
             try {
-                // Use timeout to avoid hanging
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Auth check timeout')), 5000)
-                );
-
-                const sessionPromise = supabaseClient.auth.getSession();
-                const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]);
-                
-                if (error) {
-                    console.error('Error checking auth:', error);
-                    return false;
-                }
-                
-                if (session && session.user) {
-                    currentUser = session.user;
-                    currentAccessToken = session.access_token;
+                const { user } = await api('session');
+                if (user) {
+                    currentUser = user;
                     return true;
                 }
-                
                 return false;
             } catch (e) {
-                console.error('Auth check failed or timed out:', e);
+                console.error('Auth check failed:', e);
                 return false;
             }
         }
-        
-        async function signUp(email, password) {
-            if (!supabaseClient) return { success: false, error: 'Cloud features are not available. Please try again later.' };
-            const { data, error } = await supabaseClient.auth.signUp({
-                email,
-                password,
-            });
-            if (error) {
-                console.error('Error signing up:', error);
-                return { success: false, error: error.message };
+
+        async function signUp(email, password, website) {
+            try {
+                const { user } = await api('signup', { email, password, website });
+                currentUser = user;
+                return { success: true, user };
+            } catch (e) {
+                console.error('Error signing up:', e);
+                return { success: false, error: e.message };
             }
-            return { success: true, user: data.user };
         }
-        
+
         async function signIn(email, password) {
-            if (!supabaseClient) return { success: false, error: 'Cloud features are not available. Please try again later.' };
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email,
-                password,
-            });
-            if (error) {
-                console.error('Error signing in:', error);
-                return { success: false, error: error.message };
+            try {
+                const { user } = await api('login', { email, password });
+                currentUser = user;
+                return { success: true, user };
+            } catch (e) {
+                console.error('Error signing in:', e);
+                return { success: false, error: e.message };
             }
-            currentUser = data.user;
-            return { success: true, user: data.user };
         }
-        
+
         async function signOut() {
-            if (!supabaseClient) {
-                currentUser = null;
-                currentParty = null;
-                isGuestMode = true;
-                return true;
-            }
-            const { error } = await supabaseClient.auth.signOut();
-            if (error) {
-                console.error('Error signing out:', error);
-                // Even if signOut fails (e.g., session already gone), we should still 
-                // clear local state and treat it as successful logout
-                if (error.message && error.message.includes('Auth session missing')) {
-                    console.log('Session already missing, proceeding with logout');
-                } else {
-                    return false;
-                }
+            try {
+                await api('logout', {});
+            } catch (e) {
+                // Even if the request fails, clear local state and treat it as a successful logout
+                console.error('Error signing out:', e);
             }
             currentUser = null;
             currentParty = null;
@@ -556,13 +549,13 @@
             signupButton.disabled = true;
             signupButton.textContent = 'Signing up...';
             
-            const result = await signUp(email, password);
+            const website = document.querySelector('#signupForm .hp-field').value;
+            const result = await signUp(email, password, website);
             
             if (result.success) {
-                // Create a party for the new user
-                await createInitialParty(result.user.id);
-                successDiv.textContent = 'Account created! Please check your email to verify your account, then you can login.';
+                // The server creates the new user's party and logs them straight in
                 document.getElementById('signupForm').reset();
+                await initializeApp();
             } else {
                 errorDiv.textContent = result.error;
             }
@@ -609,57 +602,55 @@
             successDiv.textContent = '';
             
             try {
-                if (!supabaseClient) {
-                    errorDiv.textContent = 'Cloud features are not available. Please try again later.';
-                    resetButton.disabled = false;
-                    resetButton.textContent = 'Send Reset Link';
-                    return;
-                }
-                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin + window.location.pathname
-                });
-                
-                if (error) {
-                    errorDiv.textContent = error.message;
-                } else {
-                    successDiv.textContent = 'Password reset link sent! Check your email inbox.';
-                    document.getElementById('forgotPasswordForm').reset();
-                    
-                    // Automatically go back to login after 3 seconds
-                    setTimeout(() => {
-                        showLogin();
-                    }, 3000);
-                }
+                const website = document.querySelector('#forgotPasswordForm .hp-field').value;
+                await api('forgot_password', { email, website });
+                successDiv.textContent = 'If that email has an account, a reset link is on its way. Check your inbox.';
+                document.getElementById('forgotPasswordForm').reset();
+
+                // Automatically go back to login after 3 seconds
+                setTimeout(() => {
+                    showLogin();
+                }, 3000);
             } catch (err) {
-                errorDiv.textContent = 'Failed to send reset email. Please try again.';
+                errorDiv.textContent = err.message || 'Failed to send reset email. Please try again.';
             }
-            
+
             resetButton.disabled = false;
             resetButton.textContent = 'Send Reset Link';
         }
 
-        async function createInitialParty(userId) {
-            try {
-                const headers = await getAuthHeaders();
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/parties`, {
-                    method: 'POST',
-                    headers: {
-                        ...headers,
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        name: '😸 Party Time Meow!',
-                        description: 'My awesome party!'
-                    })
-                });
-                
-                if (!response.ok) {
-                    console.error('Failed to create initial party:', await response.text());
-                }
-            } catch (e) {
-                console.error('Error creating initial party:', e);
+        async function handleResetPassword(event) {
+            event.preventDefault();
+
+            const password = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            const button = document.getElementById('resetPasswordButton');
+            const errorDiv = document.getElementById('resetPasswordError');
+            const token = new URLSearchParams(window.location.search).get('reset');
+
+            errorDiv.textContent = '';
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                return;
             }
+
+            button.disabled = true;
+            button.textContent = 'Saving...';
+
+            try {
+                const { user } = await api('reset_password', { token, password });
+                currentUser = user;
+                // Drop the used token from the address bar
+                history.replaceState(null, '', window.location.pathname);
+                document.getElementById('resetPasswordForm').reset();
+                await initializeApp();
+            } catch (err) {
+                errorDiv.textContent = err.message;
+            }
+
+            button.disabled = false;
+            button.textContent = 'Set New Password';
         }
 
         function clearAllData() {
@@ -682,7 +673,6 @@
 
         function showUpgradeModal() {
             document.getElementById('upgradeModal').classList.remove('hidden');
-            trackEvent('upgrade_modal_shown');
         }
 
         function hideUpgradeModal() {
@@ -694,7 +684,6 @@
             // Switch to signup tab and show auth container
             switchAuthTab('signup');
             showAuthContainer();
-            trackEvent('upgrade_started');
         }
 
         async function confirmClearData() {
@@ -718,62 +707,25 @@
                 renderTodos();
                 renderShoppingItems();
                 
-                trackEvent('data_cleared', { guestMode: true });
             } else {
-                // Cloud mode: clear Supabase data
+                // Cloud mode: delete the party's guests, todos and shopping items and reset its title
                 try {
-                    const headers = await getAuthHeaders();
-                    
-                    // Delete all guests for this party
-                    const guestsResponse = await fetch(`${SUPABASE_URL}/rest/v1/guests?party_id=eq.${currentParty.id}`, {
-                        method: 'DELETE',
-                        headers
-                    });
+                    const { party } = await api('clear_party', {});
 
-                    // Delete all todos for this party
-                    const todosResponse = await fetch(`${SUPABASE_URL}/rest/v1/todos?party_id=eq.${currentParty.id}`, {
-                        method: 'DELETE',
-                        headers
-                    });
+                    // Clear local arrays
+                    guests = [];
+                    todos = [];
+                    shoppingItems = [];
 
-                    // Delete all shopping items for this party
-                    const shoppingResponse = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items?party_id=eq.${currentParty.id}`, {
-                        method: 'DELETE',
-                        headers
-                    });
+                    // Update party title in current object and UI
+                    currentParty = party;
+                    updatePartyTitle();
 
-                    // Reset party title to default
-                    const partyResponse = await fetch(`${SUPABASE_URL}/rest/v1/parties?id=eq.${currentParty.id}`, {
-                        method: 'PATCH',
-                        headers,
-                        body: JSON.stringify({
-                            name: '😸 Party Time Meow!'
-                        })
-                    });
+                    // Update UI
+                    renderGuests();
+                    renderTodos();
+                    renderShoppingItems();
 
-                    if (guestsResponse.ok && todosResponse.ok && shoppingResponse.ok && partyResponse.ok) {
-                        // Clear local arrays
-                        guests = [];
-                        todos = [];
-                        shoppingItems = [];
-
-                        // Update party title in current object and UI
-                        currentParty.name = '😸 Party Time Meow!';
-                        document.getElementById('partyTitle').textContent = '😸 Party Time Meow!';
-
-                        // Update UI
-                        renderGuests();
-                        renderTodos();
-                        renderShoppingItems();
-
-                        trackEvent('data_cleared', { guestMode: false });
-                    } else {
-                        console.error('Error clearing data:',
-                            'Guests:', guestsResponse.status,
-                            'Todos:', todosResponse.status,
-                            'Shopping:', shoppingResponse.status);
-                        alert('Failed to clear some data. Please try again.');
-                    }
                 } catch (e) {
                     console.error('Error clearing data:', e);
                     alert('Failed to clear data. Please try again.');
@@ -862,6 +814,9 @@
             
             // Initialize the app with the current party
             await loadPartyData();
+
+            // Count this visit
+            recordVisit();
         }
 
         async function loadUserParty() {
@@ -871,24 +826,10 @@
             }
             
             try {
-                const headers = getAuthHeaders();
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/parties?user_id=eq.${currentUser.id}&limit=1`, { headers });
-                
-                if (response.ok) {
-                    const parties = await response.json();
-                    if (parties.length > 0) {
-                        currentParty = parties[0];
-                        updatePartyTitle();
-                    } else {
-                        console.error('No party found for user - creating one...');
-                        await createInitialParty(currentUser.id);
-                        await loadUserParty(); // Retry after creating
-                    }
-                } else {
-                    const errorText = await response.text();
-                    console.error('Error loading party. Status:', response.status, 'Error:', errorText);
-                    alert('Failed to load party. Please try again.');
-                }
+                // The server returns the user's party, creating one if they have none
+                const { party } = await api('party');
+                currentParty = party;
+                updatePartyTitle();
             } catch (e) {
                 console.error('Error in loadUserParty:', e);
                 alert('Failed to load party. Please try again.');
@@ -912,7 +853,7 @@
             
             // Create input field that includes the full title
             titleElement.classList.add('editing');
-            titleElement.innerHTML = `<input type="text" class="title-input" value="${currentTitle}" onblur="savePartyTitle(this)" onkeypress="handleTitleKeypress(event, this)" autofocus>`;
+            titleElement.innerHTML = `<input type="text" class="title-input" value="${escapeHtml(currentTitle)}" onblur="savePartyTitle(this)" onkeypress="handleTitleKeypress(event, this)" autofocus>`;
             
             // Focus and select the text
             const input = titleElement.querySelector('.title-input');
@@ -956,32 +897,14 @@
                 const titleElement = document.getElementById('partyTitle');
                 titleElement.classList.remove('editing');
                 updatePartyTitle();
-                trackEvent('title_updated', { guestMode: true });
             } else {
-                // Cloud mode: update Supabase
+                // Cloud mode: save to the server
                 try {
-                    const headers = await getAuthHeaders();
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/parties?id=eq.${currentParty.id}`, {
-                        method: 'PATCH',
-                        headers: {
-                            ...headers,
-                            'Prefer': 'return=representation'
-                        },
-                        body: JSON.stringify({ name: newTitle })
-                    });
-
-                    if (response.ok) {
-                        currentParty.name = newTitle;
-                        const titleElement = document.getElementById('partyTitle');
-                        titleElement.classList.remove('editing');
-                        updatePartyTitle();
-                        trackEvent('title_updated', { guestMode: false });
-                    } else {
-                        const errorText = await response.text();
-                        console.error('Error updating party name:', errorText);
-                        alert('Failed to update party name. Please try again.');
-                        cancelTitleEdit();
-                    }
+                    await api('update_party', { name: newTitle });
+                    currentParty.name = newTitle;
+                    const titleElement = document.getElementById('partyTitle');
+                    titleElement.classList.remove('editing');
+                    updatePartyTitle();
                 } catch (e) {
                     console.error('Error updating party name:', e);
                     alert('Failed to update party name. Please try again.');
@@ -994,7 +917,7 @@
         async function loadPartyData() {
             if (!currentParty) return;
             
-            // Load guests, todos, and shopping items from Supabase
+            // Load guests, todos, and shopping items from the server
             await loadGuests();
             await loadTodos();
             await loadShoppingItems();
@@ -1004,18 +927,9 @@
             if (!currentParty) return;
             
             try {
-                const headers = await getAuthHeaders();
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/guests?party_id=eq.${currentParty.id}&order=created_at.desc`, {
-                    headers
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    guests = data || [];
-                    renderGuests();
-                } else {
-                    console.error('Error loading guests:', await response.text());
-                }
+                const { items } = await api('items', null, { type: 'guests' });
+                guests = items;
+                renderGuests();
             } catch (e) {
                 console.error('Error loading guests:', e);
             }
@@ -1025,18 +939,9 @@
             if (!currentParty) return;
             
             try {
-                const headers = await getAuthHeaders();
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?party_id=eq.${currentParty.id}&order=created_at.desc`, {
-                    headers
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    todos = data || [];
-                    renderTodos();
-                } else {
-                    console.error('Error loading todos:', await response.text());
-                }
+                const { items } = await api('items', null, { type: 'todos' });
+                todos = items;
+                renderTodos();
             } catch (e) {
                 console.error('Error loading todos:', e);
             }
@@ -1130,32 +1035,13 @@
                 saveTodosToStorage();
                 input.value = '';
                 renderTodos();
-                trackEvent('todo_added', { guestMode: true });
             } else {
-                // Cloud mode: save to Supabase
+                // Cloud mode: save to the server
                 try {
-                    const headers = await getAuthHeaders();
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/todos`, {
-                        method: 'POST',
-                        headers: {
-                            ...headers,
-                            'Prefer': 'return=representation'
-                        },
-                        body: JSON.stringify(newTodo)
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        const todoData = Array.isArray(data) ? data[0] : data;
-                        todos.unshift(todoData);
-                        input.value = '';
-                        renderTodos();
-                        trackEvent('todo_added', { guestMode: false });
-                    } else {
-                        const errorText = await response.text();
-                        console.error('Error adding todo:', errorText);
-                        alert('Failed to add task. Please try again.');
-                    }
+                    const { item } = await api('create_item', { type: 'todos', text: newTodo.text, completed: false });
+                    todos.unshift(item);
+                    input.value = '';
+                    renderTodos();
                 } catch (e) {
                     console.error('Error adding todo:', e);
                     alert('Failed to add task. Please try again.');
@@ -1172,28 +1058,11 @@
                     todo.completed = newCompleted;
                     saveTodosToStorage();
                     renderTodos();
-                    trackEvent('todo_toggled', { completed: newCompleted, guestMode: true });
                 } else {
                     try {
-                        const headers = await getAuthHeaders();
-                        const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${todoId}`, {
-                            method: 'PATCH',
-                            headers: {
-                                ...headers,
-                                'Prefer': 'return=representation'
-                            },
-                            body: JSON.stringify({ completed: newCompleted })
-                        });
-
-                        if (response.ok) {
-                            todo.completed = newCompleted;
-                            renderTodos();
-                            trackEvent('todo_toggled', { completed: newCompleted, guestMode: false });
-                        } else {
-                            const errorText = await response.text();
-                            console.error('Error toggling todo:', errorText);
-                            alert('Failed to update task. Please try again.');
-                        }
+                        await api('update_item', { type: 'todos', id: todoId, completed: newCompleted });
+                        todo.completed = newCompleted;
+                        renderTodos();
                     } catch (e) {
                         console.error('Error toggling todo:', e);
                         alert('Failed to update task. Please try again.');
@@ -1208,24 +1077,11 @@
                     todos = todos.filter(t => t.id != todoId);
                     saveTodosToStorage();
                     renderTodos();
-                    trackEvent('todo_deleted', { guestMode: true });
                 } else {
                     try {
-                        const headers = await getAuthHeaders();
-                        const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${todoId}`, {
-                            method: 'DELETE',
-                            headers
-                        });
-
-                        if (response.ok) {
-                            todos = todos.filter(t => t.id !== todoId);
-                            renderTodos();
-                            trackEvent('todo_deleted', { guestMode: false });
-                        } else {
-                            const errorText = await response.text();
-                            console.error('Error deleting todo:', errorText);
-                            alert('Failed to delete task. Please try again.');
-                        }
+                        await api('delete_item', { type: 'todos', id: todoId });
+                        todos = todos.filter(t => t.id !== todoId);
+                        renderTodos();
                     } catch (e) {
                         console.error('Error deleting todo:', e);
                         alert('Failed to delete task. Please try again.');
@@ -1245,7 +1101,7 @@
 
             todoList.innerHTML = todos.map(todo => `
                 <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                    <div class="todo-text">${todo.text}</div>
+                    <div class="todo-text">${escapeHtml(todo.text)}</div>
                     <div class="todo-actions">
                         <button class="btn ${todo.completed ? 'btn-pending' : 'btn-yes'}" onclick="toggleTodo('${todo.id}')">
                             ${todo.completed ? 'Undo' : 'Done'}
@@ -1284,20 +1140,9 @@
                 renderShoppingItems();
             } else {
                 try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items?party_id=eq.${currentParty.id}&order=created_at.desc`, {
-                        method: 'GET',
-                        headers: await getAuthHeaders()
-                    });
-
-                    if (response.ok) {
-                        shoppingItems = await response.json();
-                        renderShoppingItems();
-                    } else if (response.status === 404) {
-                        // Table doesn't exist yet, initialize empty and render
-                        shoppingItems = [];
-                        renderShoppingItems();
-                        console.log('Shopping items table not found - using empty list');
-                    }
+                    const { items } = await api('items', null, { type: 'shopping_items' });
+                    shoppingItems = items;
+                    renderShoppingItems();
                 } catch (e) {
                     console.error('Error loading shopping items:', e);
                     // Initialize empty and render on error
@@ -1321,38 +1166,20 @@
                 return;
             }
 
-            const newItem = {
-                id: isGuestMode ? Date.now().toString() : crypto.randomUUID(),
-                text: item,
-                bought: false,
-                created_at: new Date().toISOString()
-            };
-
             if (isGuestMode) {
-                shoppingItems.push(newItem);
+                shoppingItems.push({
+                    id: Date.now().toString(),
+                    text: item,
+                    bought: false,
+                    created_at: new Date().toISOString()
+                });
                 saveShoppingItemsToStorage();
                 renderShoppingItems();
-                trackEvent('shopping_item_added', { guestMode: true });
             } else {
                 try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items`, {
-                        method: 'POST',
-                        headers: await getAuthHeaders(),
-                        body: JSON.stringify({
-                            id: newItem.id,
-                            party_id: currentParty.id,
-                            text: newItem.text,
-                            bought: newItem.bought
-                        })
-                    });
-
-                    if (response.ok) {
-                        shoppingItems.push(newItem);
-                        renderShoppingItems();
-                        trackEvent('shopping_item_added', { guestMode: false });
-                    } else {
-                        alert('Failed to add item. Please try again.');
-                    }
+                    const { item: savedItem } = await api('create_item', { type: 'shopping_items', text: item, bought: false });
+                    shoppingItems.push(savedItem);
+                    renderShoppingItems();
                 } catch (e) {
                     console.error('Error adding shopping item:', e);
                     alert('Failed to add item. Please try again.');
@@ -1371,27 +1198,11 @@
                     item.bought = newBought;
                     saveShoppingItemsToStorage();
                     renderShoppingItems();
-                    trackEvent('shopping_item_toggled', { bought: newBought, guestMode: true });
                 } else {
                     try {
-                        const response = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items?id=eq.${itemId}`, {
-                            method: 'PATCH',
-                            headers: {
-                                ...(await getAuthHeaders()),
-                                'Prefer': 'return=representation'
-                            },
-                            body: JSON.stringify({ bought: newBought })
-                        });
-
-                        if (response.ok) {
-                            item.bought = newBought;
-                            renderShoppingItems();
-                            trackEvent('shopping_item_toggled', { bought: newBought, guestMode: false });
-                        } else {
-                            const errorText = await response.text();
-                            console.error('Error toggling shopping item:', errorText);
-                            alert('Failed to update item. Please try again.');
-                        }
+                        await api('update_item', { type: 'shopping_items', id: itemId, bought: newBought });
+                        item.bought = newBought;
+                        renderShoppingItems();
                     } catch (e) {
                         console.error('Error toggling shopping item:', e);
                         alert('Failed to update item. Please try again.');
@@ -1406,23 +1217,11 @@
                     shoppingItems = shoppingItems.filter(i => i.id != itemId);
                     saveShoppingItemsToStorage();
                     renderShoppingItems();
-                    trackEvent('shopping_item_deleted', { guestMode: true });
                 } else {
                     try {
-                        const response = await fetch(`${SUPABASE_URL}/rest/v1/shopping_items?id=eq.${itemId}`, {
-                            method: 'DELETE',
-                            headers: await getAuthHeaders()
-                        });
-
-                        if (response.ok) {
-                            shoppingItems = shoppingItems.filter(i => i.id !== itemId);
-                            renderShoppingItems();
-                            trackEvent('shopping_item_deleted', { guestMode: false });
-                        } else {
-                            const errorText = await response.text();
-                            console.error('Error deleting shopping item:', errorText);
-                            alert('Failed to delete item. Please try again.');
-                        }
+                        await api('delete_item', { type: 'shopping_items', id: itemId });
+                        shoppingItems = shoppingItems.filter(i => i.id !== itemId);
+                        renderShoppingItems();
                     } catch (e) {
                         console.error('Error deleting shopping item:', e);
                         alert('Failed to delete item. Please try again.');
@@ -1442,7 +1241,7 @@
 
             shoppingList.innerHTML = shoppingItems.map(item => `
                 <div class="shopping-item ${item.bought ? 'bought' : ''}">
-                    <div class="shopping-text">${item.text}</div>
+                    <div class="shopping-text">${escapeHtml(item.text)}</div>
                     <div class="shopping-actions">
                         <button class="btn ${item.bought ? 'btn-pending' : 'btn-yes'}" onclick="toggleShoppingItem('${item.id}')">
                             ${item.bought ? 'Unbuy' : 'Bought'}
@@ -1498,32 +1297,13 @@
                 saveGuestsToStorage();
                 nameInput.value = '';
                 renderGuests();
-                trackEvent('guest_added', { guestMode: true });
             } else {
-                // Cloud mode: save to Supabase
+                // Cloud mode: save to the server
                 try {
-                    const headers = await getAuthHeaders();
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/guests`, {
-                        method: 'POST',
-                        headers: {
-                            ...headers,
-                            'Prefer': 'return=representation'
-                        },
-                        body: JSON.stringify(newGuest)
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        const guestData = Array.isArray(data) ? data[0] : data;
-                        guests.unshift(guestData);
-                        nameInput.value = '';
-                        renderGuests();
-                        trackEvent('guest_added', { guestMode: false });
-                    } else {
-                        const errorText = await response.text();
-                        console.error('Error adding guest:', errorText);
-                        alert(`Failed to add guest: ${errorText}`);
-                    }
+                    const { item } = await api('create_item', { type: 'guests', name: newGuest.name, status: newGuest.status, count: newGuest.count });
+                    guests.unshift(item);
+                    nameInput.value = '';
+                    renderGuests();
                 } catch (e) {
                     console.error('Error adding guest:', e);
                     alert(`Failed to add guest: ${e.message}`);
@@ -1540,29 +1320,12 @@
                 guest.status = status;
                 saveGuestsToStorage();
                 renderGuests();
-                trackEvent('guest_status_updated', { status, guestMode: true });
             } else {
-                // Cloud mode: update Supabase
+                // Cloud mode: save to the server
                 try {
-                    const headers = await getAuthHeaders();
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/guests?id=eq.${guestId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            ...headers,
-                            'Prefer': 'return=representation'
-                        },
-                        body: JSON.stringify({ status: status })
-                    });
-
-                    if (response.ok) {
-                        guest.status = status;
-                        renderGuests();
-                        trackEvent('guest_status_updated', { status, guestMode: false });
-                    } else {
-                        const errorText = await response.text();
-                        console.error('Error updating guest status:', errorText);
-                        alert('Failed to update guest status. Please try again.');
-                    }
+                    await api('update_item', { type: 'guests', id: guestId, status: status });
+                    guest.status = status;
+                    renderGuests();
                 } catch (e) {
                     console.error('Error updating guest status:', e);
                     alert('Failed to update guest status. Please try again.');
@@ -1576,24 +1339,11 @@
                     guests = guests.filter(g => g.id != guestId);
                     saveGuestsToStorage();
                     renderGuests();
-                    trackEvent('guest_deleted', { guestMode: true });
                 } else {
                     try {
-                        const headers = await getAuthHeaders();
-                        const response = await fetch(`${SUPABASE_URL}/rest/v1/guests?id=eq.${guestId}`, {
-                            method: 'DELETE',
-                            headers
-                        });
-
-                        if (response.ok) {
-                            guests = guests.filter(g => g.id !== guestId);
-                            renderGuests();
-                            trackEvent('guest_deleted', { guestMode: false });
-                        } else {
-                            const errorText = await response.text();
-                            console.error('Error deleting guest:', errorText);
-                            alert('Failed to delete guest. Please try again.');
-                        }
+                        await api('delete_item', { type: 'guests', id: guestId });
+                        guests = guests.filter(g => g.id !== guestId);
+                        renderGuests();
                     } catch (e) {
                         console.error('Error deleting guest:', e);
                         alert('Failed to delete guest. Please try again.');
@@ -1614,7 +1364,7 @@
             guestList.innerHTML = guests.map(guest => `
                 <div class="guest-item ${guest.status}">
                     <div>
-                        <span class="guest-name">${guest.name}</span>
+                        <span class="guest-name">${escapeHtml(guest.name)}</span>
                         <span class="guest-count">(${guest.count || parseGuestCount(guest.name)} ${(guest.count || parseGuestCount(guest.name)) === 1 ? 'person' : 'people'})</span>
                         <span class="status-badge status-${guest.status}">${guest.status.charAt(0).toUpperCase() + guest.status.slice(1)}</span>
                     </div>
@@ -1654,29 +1404,19 @@
             }
         });
 
-        // Handle password reset flow
+        // Handle password reset flow: emailed links open ?reset=<token>
         function handlePasswordReset() {
-            const hash = window.location.hash;
-            
-            if (hash.includes('access_token') && hash.includes('type=recovery')) {
-                // This is a password reset link
-                showPasswordResetForm();
-                return true;
-            } else if (hash.includes('error=access_denied') || hash.includes('error_code=otp_expired')) {
-                // Reset link expired or invalid
-                showAuthContainer();
-                document.getElementById('loginError').textContent = 'Password reset link has expired. Please request a new one.';
-                return true;
+            if (!new URLSearchParams(window.location.search).has('reset')) {
+                return false;
             }
-            
-            return false;
-        }
 
-        function showPasswordResetForm() {
-            // Show a new password form (you can expand this)
-            alert('Password reset successful! You can now log in with your new password.');
+            clearAuthMessages();
+            document.getElementById('resetPasswordError').textContent = '';
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById('resetPasswordForm').classList.add('active');
+            document.querySelector('.auth-tabs').style.display = 'none';
             showAuthContainer();
-            switchAuthTab('login');
+            return true;
         }
 
         function startGuestMode() {
@@ -1691,29 +1431,6 @@
             if (handlePasswordReset()) {
                 return; // Stop here if we're handling a password reset
             }
-
-            if (!supabaseClient) {
-                // Supabase not available — go straight to guest mode
-                isGuestMode = true;
-                await initializeGuestMode();
-                return;
-            }
-
-            // Listen for auth state changes
-            supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                    currentUser = session.user;
-                    currentAccessToken = session.access_token;
-                    isGuestMode = false;
-                    await initializeApp();
-                } else if (event === 'SIGNED_OUT') {
-                    currentUser = null;
-                    currentParty = null;
-                    currentAccessToken = null;
-                    isGuestMode = true;
-                    await initializeGuestMode();
-                }
-            });
 
             // Check if user is already logged in
             const isAuthenticated = await checkAuth();
@@ -1752,8 +1469,8 @@
             renderTodos();
             renderShoppingItems();
             
-            // Track anonymous usage
-            trackEvent('guest_mode_started');
+            // Count this visit (anonymously) once the guest interacts
+            recordVisitOnInteraction();
         }
 
         // Initialize modal state

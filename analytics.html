@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Party Cat Analytics Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
     <style>
         * {
             margin: 0;
@@ -178,95 +176,19 @@
             margin: 20px 0;
         }
 
-        .stats-list {
-            list-style: none;
-            padding: 0;
-        }
 
-        .stats-list li {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
 
-        .stats-list li:last-child {
-            border-bottom: none;
-        }
 
-        .stats-label {
-            font-weight: 500;
-            color: #1d1d1f;
-        }
 
-        .stats-value {
-            font-weight: bold;
-            color: #007aff;
-        }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #6e6e73;
-        }
 
-        .spinner {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #007aff;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
 
-        .date-range {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
 
-        .date-range label {
-            font-weight: 500;
-            color: #1d1d1f;
-        }
 
-        .date-range input {
-            padding: 8px 12px;
-            border: 2px solid #e5e5e7;
-            border-radius: 6px;
-            font-size: 14px;
-        }
 
-        .date-range input:focus {
-            outline: none;
-            border-color: #007aff;
-        }
 
-        .refresh-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
 
-        .refresh-btn:hover {
-            background: #0056b3;
-        }
 
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
@@ -297,11 +219,67 @@
                 font-size: 2.5em;
             }
 
-            .date-range {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 15px;
-            }
+        }
+
+        .period-picker {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .period-btn {
+            background: white;
+            color: #007aff;
+            border: 1px solid #007aff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .period-btn.active {
+            background: #007aff;
+            color: white;
+        }
+
+        .metric-note {
+            color: #6e6e73;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .wide-card {
+            margin-bottom: 30px;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .period-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .period-table th,
+        .period-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+        }
+
+        .period-table th:first-child,
+        .period-table td:first-child {
+            text-align: left;
+        }
+
+        .period-table tr.selected td {
+            background: #f0f7ff;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -312,8 +290,12 @@
             <h1>🐱 Party Cat Analytics</h1>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label for="password">Analytics Password</label>
-                    <input type="password" id="password" required placeholder="Enter analytics password">
+                    <label for="email">Admin Email</label>
+                    <input type="email" id="email" required placeholder="Your Party Cat account email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Your Party Cat password">
                 </div>
                 <button type="submit" class="login-btn">Access Dashboard</button>
                 <div id="errorMessage" class="error-message"></div>
@@ -328,537 +310,244 @@
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
 
-        <div class="date-range">
-            <label for="startDate">Date Range:</label>
-            <input type="date" id="startDate">
-            <label for="endDate">to</label>
-            <input type="date" id="endDate">
-            <button class="refresh-btn" onclick="loadAnalytics()">Refresh Data</button>
+        <div class="period-picker" id="periodPicker">
+            <span>Show the last</span>
+            <button class="period-btn" data-days="30" onclick="selectPeriod(30)">30 days</button>
+            <button class="period-btn" data-days="60" onclick="selectPeriod(60)">60 days</button>
+            <button class="period-btn" data-days="90" onclick="selectPeriod(90)">90 days</button>
+            <button class="period-btn" data-days="180" onclick="selectPeriod(180)">180 days</button>
         </div>
 
         <div class="metrics-grid">
-            <!-- Mode Usage -->
             <div class="metric-card">
-                <h3>Guest vs Account Usage</h3>
-                <div class="chart-container">
-                    <canvas id="modeChart"></canvas>
-                </div>
-                <ul class="stats-list" id="modeStats">
-                    <li class="loading">
-                        <div class="spinner"></div>
-                        Loading data...
-                    </li>
-                </ul>
+                <h3>Guest Users</h3>
+                <div class="big-number" id="guestUsers">--</div>
+                <p class="metric-note">Browsers that clicked or typed in Party Cat without logging in</p>
             </div>
+            <div class="metric-card">
+                <h3>Account Users</h3>
+                <div class="big-number" id="accountUsers">--</div>
+                <p class="metric-note">Logged-in accounts, counted once across devices</p>
+            </div>
+            <div class="metric-card">
+                <h3>Returning Users</h3>
+                <div class="big-number" id="returningUsers">--</div>
+                <p class="metric-note" id="returningBreakdown">Used Party Cat on more than one day</p>
+            </div>
+        </div>
 
-            <!-- Feature Popularity -->
-            <div class="metric-card">
-                <h3>Most Popular Features</h3>
-                <div class="chart-container">
-                    <canvas id="featuresChart"></canvas>
-                </div>
-                <ul class="stats-list" id="featuresStats">
-                    <li class="loading">
-                        <div class="spinner"></div>
-                        Loading data...
-                    </li>
-                </ul>
+        <div class="metric-card wide-card">
+            <h3 id="chartTitle">Daily Users</h3>
+            <div class="chart-container">
+                <canvas id="usersChart"></canvas>
             </div>
+        </div>
 
-            <!-- Conversion Rate -->
-            <div class="metric-card">
-                <h3>Guest to Account Conversion</h3>
-                <div class="big-number" id="conversionRate">--</div>
-                <ul class="stats-list" id="conversionStats">
-                    <li class="loading">
-                        <div class="spinner"></div>
-                        Loading data...
-                    </li>
-                </ul>
+        <div class="metric-card wide-card">
+            <h3>All Periods</h3>
+            <div class="table-scroll">
+                <table class="period-table">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Guest users</th>
+                            <th>Account users</th>
+                            <th>Returning guests</th>
+                            <th>Returning accounts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="periodRows">
+                        <tr><td colspan="5">Loading data...</td></tr>
+                    </tbody>
+                </table>
             </div>
-
-            <!-- Browser/Device Data -->
-            <div class="metric-card">
-                <h3>Browser & Device Compatibility</h3>
-                <div class="chart-container">
-                    <canvas id="browserChart"></canvas>
-                </div>
-                <ul class="stats-list" id="browserStats">
-                    <li class="loading">
-                        <div class="spinner"></div>
-                        Loading data...
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Daily Usage -->
-            <div class="metric-card">
-                <h3>Daily Usage Patterns</h3>
-                <div class="chart-container">
-                    <canvas id="dailyChart"></canvas>
-                </div>
-                <ul class="stats-list" id="dailyStats">
-                    <li class="loading">
-                        <div class="spinner"></div>
-                        Loading data...
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Retention -->
-            <div class="metric-card">
-                <h3>User Retention</h3>
-                <div class="big-number" id="retentionRate">--</div>
-                <ul class="stats-list" id="retentionStats">
-                    <li class="loading">
-                        <div class="spinner"></div>
-                        Loading data...
-                    </li>
-                </ul>
-            </div>
+            <p class="metric-note" id="countingSince"></p>
         </div>
     </div>
 
     <script>
-        // Configuration
-        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'YOUR_SUPABASE_URL_HERE';
-        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
+        // Call the Party Cat API (api/index.php). Sends a JSON body as POST when one is given.
+        async function api(action, body = null, params = {}) {
+            const query = new URLSearchParams({ action, ...params });
+            const response = await fetch(`api/?${query}`, body ? {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            } : {});
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || `Request failed (${response.status})`);
+            }
+            return data;
+        }
 
-        // Initialize Supabase client
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // Check if user is authenticated for analytics access
-        let currentUser = null;
+        // Escape text from the analytics table before inserting it into HTML
+        function escapeHtml(text) {
+            return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+        }
 
         // Chart instances
         let charts = {};
 
-        // Authentication using Supabase authentication
+        function showDashboard() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            initializeDashboard();
+        }
+
+        // Log in with a Party Cat account; the server only returns analytics to admin accounts
         async function handleLogin(event) {
             event.preventDefault();
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = '';
 
-            // For now, use password-based access
-            // TODO: Replace with proper Supabase authentication
-            const passwordHash = await hashPassword(password);
-            const correctHash = window.CONFIG?.ANALYTICS_PASSWORD_HASH || 'YOUR_PASSWORD_HASH_HERE';
-            
-            if (passwordHash === correctHash) {
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('dashboard').classList.add('active');
-                localStorage.setItem('analytics_auth', 'true');
-                initializeDashboard();
-            } else {
-                errorDiv.textContent = 'Incorrect password. Please try again.';
+            try {
+                const { user } = await api('login', { email, password });
+                if (user.is_admin) {
+                    showDashboard();
+                } else {
+                    errorDiv.textContent = 'This account does not have access to analytics.';
+                }
+            } catch (e) {
+                errorDiv.textContent = e.message;
             }
         }
 
-        // Hash function using SHA-256 with salt
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password + 'partycat-salt');
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
-        }
-
-        function logout() {
-            localStorage.removeItem('analytics_auth');
+        async function logout() {
+            try {
+                await api('logout', {});
+            } catch (e) {
+                console.error('Error logging out:', e);
+            }
             document.getElementById('loginContainer').style.display = 'flex';
             document.getElementById('dashboard').classList.remove('active');
         }
 
-        function checkAuth() {
-            if (localStorage.getItem('analytics_auth') === 'true') {
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('dashboard').classList.add('active');
-                initializeDashboard();
+        async function checkAuth() {
+            try {
+                const { user } = await api('session');
+                if (user && user.is_admin) {
+                    showDashboard();
+                }
+            } catch (e) {
+                console.error('Error checking session:', e);
             }
         }
 
-        // Initialize dashboard
+        let stats = null;
+        let selectedDays = 30;
+
         function initializeDashboard() {
-            // Set default date range (last 30 days)
-            const endDate = new Date();
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() - 30);
-
-            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
-            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
-
             loadAnalytics();
         }
 
-        // Load analytics data
         async function loadAnalytics() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-
             try {
-                await Promise.all([
-                    loadModeUsage(startDate, endDate),
-                    loadFeaturePopularity(startDate, endDate),
-                    loadConversionRate(startDate, endDate),
-                    loadBrowserData(startDate, endDate),
-                    loadDailyUsage(startDate, endDate),
-                    loadRetentionData(startDate, endDate)
-                ]);
+                stats = await api('stats');
+                renderDashboard();
             } catch (error) {
                 console.error('Error loading analytics:', error);
+                document.getElementById('periodRows').innerHTML = `<tr><td colspan="5">${escapeHtml(error.message)}</td></tr>`;
             }
         }
 
-        // Mode usage (Guest vs Account)
-        async function loadModeUsage(startDate, endDate) {
-            const { data, error } = await supabaseClient
-                .from('analytics_events')
-                .select('properties')
-                .gte('created_at', startDate)
-                .lte('created_at', endDate + 'T23:59:59')
-                .not('properties->guestMode', 'is', null);
+        function selectPeriod(days) {
+            selectedDays = days;
+            if (stats) renderDashboard();
+        }
 
-            if (error) {
-                console.error('Error loading mode usage:', error);
-                return;
-            }
+        function formatDay(day) {
+            return new Date(day + 'T00:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+        }
 
-            const guestCount = data.filter(event => event.properties.guestMode === true).length;
-            const accountCount = data.filter(event => event.properties.guestMode === false).length;
-            const total = guestCount + accountCount;
+        function plural(count, word) {
+            return `${count} ${word}${count === 1 ? '' : 's'}`;
+        }
 
-            // Update chart
-            if (charts.modeChart) charts.modeChart.destroy();
-            const ctx = document.getElementById('modeChart').getContext('2d');
-            charts.modeChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Guest Mode', 'Account Mode'],
-                    datasets: [{
-                        data: [guestCount, accountCount],
-                        backgroundColor: ['#FF6384', '#36A2EB'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+        function addDays(day, count) {
+            const date = new Date(day + 'T00:00:00Z');
+            date.setUTCDate(date.getUTCDate() + count);
+            return date.toISOString().slice(0, 10);
+        }
+
+        function renderDashboard() {
+            const period = stats.windows.find(w => w.days === selectedDays);
+            const returning = period.returning_guests + period.returning_accounts;
+            const users = period.guests + period.accounts;
+
+            document.querySelectorAll('.period-btn').forEach(button => {
+                button.classList.toggle('active', Number(button.dataset.days) === selectedDays);
+            });
+            document.getElementById('guestUsers').textContent = period.guests;
+            document.getElementById('accountUsers').textContent = period.accounts;
+            document.getElementById('returningUsers').textContent = returning;
+            document.getElementById('returningBreakdown').textContent =
+                `${plural(period.returning_guests, 'guest')} and ${plural(period.returning_accounts, 'account')} used Party Cat on more than one day` +
+                (users ? ` (${Math.round(returning / users * 100)}% of all users)` : '');
+
+            document.getElementById('periodRows').innerHTML = stats.windows.map(w => `
+                <tr class="${w.days === selectedDays ? 'selected' : ''}">
+                    <td>Last ${w.days} days</td>
+                    <td>${w.guests}</td>
+                    <td>${w.accounts}</td>
+                    <td>${w.returning_guests}</td>
+                    <td>${w.returning_accounts}</td>
+                </tr>
+            `).join('');
+            document.getElementById('countingSince').textContent = stats.since
+                ? `Visit counting started on ${new Date(stats.since + 'T00:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}, so longer periods fill in over time.`
+                : 'No visits recorded yet.';
+
+            renderChart(period.start);
+        }
+
+        // Users per day (or per week for periods over 60 days), guests and accounts stacked
+        function renderChart(start) {
+            const byDay = {};
+            stats.daily.forEach(row => {
+                byDay[row.day] = byDay[row.day] || { guest: 0, account: 0 };
+                byDay[row.day][row.mode] = Number(row.users);
+            });
+
+            const bucketSize = selectedDays > 60 ? 7 : 1;
+            const labels = [], guests = [], accounts = [];
+            for (let day = start; day <= stats.today; day = addDays(day, bucketSize)) {
+                let guestTotal = 0, accountTotal = 0;
+                for (let i = 0; i < bucketSize; i++) {
+                    const counts = byDay[addDays(day, i)];
+                    if (counts) {
+                        guestTotal += counts.guest;
+                        accountTotal += counts.account;
                     }
                 }
-            });
-
-            // Update stats
-            document.getElementById('modeStats').innerHTML = `
-                <li>
-                    <span class="stats-label">Guest Mode Events</span>
-                    <span class="stats-value">${guestCount} (${total ? Math.round(guestCount/total*100) : 0}%)</span>
-                </li>
-                <li>
-                    <span class="stats-label">Account Mode Events</span>
-                    <span class="stats-value">${accountCount} (${total ? Math.round(accountCount/total*100) : 0}%)</span>
-                </li>
-                <li>
-                    <span class="stats-label">Total Events</span>
-                    <span class="stats-value">${total}</span>
-                </li>
-            `;
-        }
-
-        // Feature popularity
-        async function loadFeaturePopularity(startDate, endDate) {
-            const { data, error } = await supabaseClient
-                .from('analytics_events')
-                .select('event_name')
-                .gte('created_at', startDate)
-                .lte('created_at', endDate + 'T23:59:59');
-
-            if (error) {
-                console.error('Error loading feature popularity:', error);
-                return;
+                labels.push(formatDay(day));
+                guests.push(guestTotal);
+                accounts.push(accountTotal);
             }
 
-            // Count events
-            const eventCounts = {};
-            data.forEach(event => {
-                eventCounts[event.event_name] = (eventCounts[event.event_name] || 0) + 1;
-            });
-
-            // Sort by popularity
-            const sorted = Object.entries(eventCounts)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 8); // Top 8 features
-
-            // Update chart
-            if (charts.featuresChart) charts.featuresChart.destroy();
-            const ctx = document.getElementById('featuresChart').getContext('2d');
-            charts.featuresChart = new Chart(ctx, {
+            document.getElementById('chartTitle').textContent = bucketSize === 1 ? 'Daily Users' : 'Weekly Users (sum of daily users)';
+            if (charts.usersChart) charts.usersChart.destroy();
+            charts.usersChart = new Chart(document.getElementById('usersChart').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: sorted.map(([name]) => name.replace(/_/g, ' ')),
-                    datasets: [{
-                        data: sorted.map(([,count]) => count),
-                        backgroundColor: '#007aff',
-                        borderRadius: 4
-                    }]
+                    labels,
+                    datasets: [
+                        { label: 'Guests', data: guests, backgroundColor: '#FF6384', borderRadius: 4 },
+                        { label: 'Accounts', data: accounts, backgroundColor: '#36A2EB', borderRadius: 4 }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
+                    plugins: { legend: { position: 'bottom' } },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
-                        }
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
                     }
                 }
             });
-
-            // Update stats
-            document.getElementById('featuresStats').innerHTML = sorted
-                .slice(0, 5)
-                .map(([name, count]) => `
-                    <li>
-                        <span class="stats-label">${name.replace(/_/g, ' ')}</span>
-                        <span class="stats-value">${count}</span>
-                    </li>
-                `).join('');
-        }
-
-        // Conversion rate
-        async function loadConversionRate(startDate, endDate) {
-            const { data, error } = await supabaseClient
-                .from('analytics_events')
-                .select('event_name')
-                .gte('created_at', startDate)
-                .lte('created_at', endDate + 'T23:59:59')
-                .in('event_name', ['upgrade_modal_shown', 'upgrade_started']);
-
-            if (error) {
-                console.error('Error loading conversion rate:', error);
-                return;
-            }
-
-            const modalShown = data.filter(e => e.event_name === 'upgrade_modal_shown').length;
-            const upgradeStarted = data.filter(e => e.event_name === 'upgrade_started').length;
-            const conversionRate = modalShown > 0 ? Math.round((upgradeStarted / modalShown) * 100) : 0;
-
-            document.getElementById('conversionRate').textContent = `${conversionRate}%`;
-            document.getElementById('conversionStats').innerHTML = `
-                <li>
-                    <span class="stats-label">Upgrade Modal Shown</span>
-                    <span class="stats-value">${modalShown}</span>
-                </li>
-                <li>
-                    <span class="stats-label">Upgrade Started</span>
-                    <span class="stats-value">${upgradeStarted}</span>
-                </li>
-                <li>
-                    <span class="stats-label">Conversion Rate</span>
-                    <span class="stats-value">${conversionRate}%</span>
-                </li>
-            `;
-        }
-
-        // Browser/Device data
-        async function loadBrowserData(startDate, endDate) {
-            const { data, error } = await supabaseClient
-                .from('analytics_events')
-                .select('user_agent')
-                .gte('created_at', startDate)
-                .lte('created_at', endDate + 'T23:59:59')
-                .not('user_agent', 'is', null);
-
-            if (error) {
-                console.error('Error loading browser data:', error);
-                return;
-            }
-
-            // Simple browser detection
-            const browsers = {};
-            data.forEach(event => {
-                const ua = event.user_agent;
-                let browser = 'Other';
-                
-                if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
-                else if (ua.includes('Firefox')) browser = 'Firefox';
-                else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
-                else if (ua.includes('Edg')) browser = 'Edge';
-                
-                browsers[browser] = (browsers[browser] || 0) + 1;
-            });
-
-            const sorted = Object.entries(browsers).sort(([,a], [,b]) => b - a);
-
-            // Update chart
-            if (charts.browserChart) charts.browserChart.destroy();
-            const ctx = document.getElementById('browserChart').getContext('2d');
-            charts.browserChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: sorted.map(([browser]) => browser),
-                    datasets: [{
-                        data: sorted.map(([,count]) => count),
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-
-            // Update stats
-            document.getElementById('browserStats').innerHTML = sorted
-                .slice(0, 5)
-                .map(([browser, count]) => `
-                    <li>
-                        <span class="stats-label">${browser}</span>
-                        <span class="stats-value">${count}</span>
-                    </li>
-                `).join('');
-        }
-
-        // Daily usage patterns
-        async function loadDailyUsage(startDate, endDate) {
-            const { data, error } = await supabaseClient
-                .from('analytics_events')
-                .select('created_at')
-                .gte('created_at', startDate)
-                .lte('created_at', endDate + 'T23:59:59')
-                .order('created_at');
-
-            if (error) {
-                console.error('Error loading daily usage:', error);
-                return;
-            }
-
-            // Group by date
-            const dailyCounts = {};
-            data.forEach(event => {
-                const date = event.created_at.split('T')[0];
-                dailyCounts[date] = (dailyCounts[date] || 0) + 1;
-            });
-
-            const sorted = Object.entries(dailyCounts).sort(([a], [b]) => a.localeCompare(b));
-
-            // Update chart
-            if (charts.dailyChart) charts.dailyChart.destroy();
-            const ctx = document.getElementById('dailyChart').getContext('2d');
-            charts.dailyChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: sorted.map(([date]) => new Date(date).toLocaleDateString()),
-                    datasets: [{
-                        label: 'Daily Events',
-                        data: sorted.map(([,count]) => count),
-                        borderColor: '#007aff',
-                        backgroundColor: 'rgba(0, 122, 255, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Update stats
-            const totalEvents = Object.values(dailyCounts).reduce((a, b) => a + b, 0);
-            const avgDaily = totalEvents / Object.keys(dailyCounts).length || 0;
-            const peakDay = sorted.reduce((max, [date, count]) => count > max.count ? {date, count} : max, {date: '', count: 0});
-
-            document.getElementById('dailyStats').innerHTML = `
-                <li>
-                    <span class="stats-label">Total Events</span>
-                    <span class="stats-value">${totalEvents}</span>
-                </li>
-                <li>
-                    <span class="stats-label">Average Daily</span>
-                    <span class="stats-value">${Math.round(avgDaily)}</span>
-                </li>
-                <li>
-                    <span class="stats-label">Peak Day</span>
-                    <span class="stats-value">${new Date(peakDay.date).toLocaleDateString()} (${peakDay.count})</span>
-                </li>
-            `;
-        }
-
-        // Retention data
-        async function loadRetentionData(startDate, endDate) {
-            const { data, error } = await supabaseClient
-                .from('analytics_events')
-                .select('session_id, created_at')
-                .gte('created_at', startDate)
-                .lte('created_at', endDate + 'T23:59:59')
-                .order('created_at');
-
-            if (error) {
-                console.error('Error loading retention data:', error);
-                return;
-            }
-
-            // Group by session and count days
-            const sessionDays = {};
-            data.forEach(event => {
-                const sessionId = event.session_id;
-                const date = event.created_at.split('T')[0];
-                
-                if (!sessionDays[sessionId]) {
-                    sessionDays[sessionId] = new Set();
-                }
-                sessionDays[sessionId].add(date);
-            });
-
-            const totalSessions = Object.keys(sessionDays).length;
-            const returningSessions = Object.values(sessionDays).filter(dates => dates.size > 1).length;
-            const retentionRate = totalSessions > 0 ? Math.round((returningSessions / totalSessions) * 100) : 0;
-
-            document.getElementById('retentionRate').textContent = `${retentionRate}%`;
-            document.getElementById('retentionStats').innerHTML = `
-                <li>
-                    <span class="stats-label">Total Sessions</span>
-                    <span class="stats-value">${totalSessions}</span>
-                </li>
-                <li>
-                    <span class="stats-label">Returning Sessions</span>
-                    <span class="stats-value">${returningSessions}</span>
-                </li>
-                <li>
-                    <span class="stats-label">Retention Rate</span>
-                    <span class="stats-value">${retentionRate}%</span>
-                </li>
-            `;
         }
 
         // Initialize on page load
