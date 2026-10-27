@@ -168,7 +168,7 @@
         
         <div class="title-block">
             <div class="hero-art" aria-hidden="true"></div>
-            <h1 id="partyTitle" class="editable-title" onclick="editPartyTitle()"><span class="title-emoji">😸 </span>Party Time <span class="title-accent">Meow!</span></h1>
+            <h1 id="partyTitle" class="editable-title" onclick="editPartyTitle()">Party Time <span class="title-accent">Meow!</span></h1>
             <div class="hero-art-alt" aria-hidden="true"></div>
         </div>
         
@@ -280,7 +280,6 @@
                     <li>All guests and their RSVP status</li>
                     <li>All todo items</li>
                     <li>All shopping list items</li>
-                    <li>Background settings</li>
                 </ul>
                 <p><strong>This action cannot be undone!</strong></p>
             </div>
@@ -684,7 +683,7 @@
                 guests = [];
                 todos = [];
                 shoppingItems = [];
-                currentParty.name = '😸 Party Time Meow!';
+                currentParty.name = 'Party Time Meow!';
                 
                 // Clear localStorage
                 localStorage.removeItem('partyGuests');
@@ -692,7 +691,7 @@
                 localStorage.removeItem('partyShoppingItems');
                 
                 // Update UI
-                document.getElementById('partyTitle').textContent = '😸 Party Time Meow!';
+                updatePartyTitle();
                 renderGuests();
                 renderTodos();
                 renderShoppingItems();
@@ -832,11 +831,9 @@
             titleElement.innerHTML = decoratePartyTitle(currentParty.name);
         }
 
-        // Wrap parts of the title so themes can style them: the default 😸 (replaced by
-        // each theme's hero cat) and a closing "Meow!" (the theme's accent colour).
+        // Wrap a closing "Meow!" so themes can give it their accent colour.
         function decoratePartyTitle(name) {
             let html = escapeHtml(name);
-            html = html.replace(/^😸\s*/, '<span class="title-emoji">😸 </span>');
             html = html.replace(/(meow!?)$/i, '<span class="title-accent">$1</span>');
             return html;
         }
@@ -1448,7 +1445,7 @@
             // Create a virtual party object for guest mode
             currentParty = {
                 id: 'guest-party',
-                name: '😸 Party Time Meow!',
+                name: 'Party Time Meow!',
                 description: 'Guest mode party'
             };
             

@@ -13,7 +13,7 @@ const SESSION_DAYS = 30;
 const RESET_TOKEN_MINUTES = 60;
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_ITEMS_PER_LIST = 500;
-const DEFAULT_PARTY_NAME = '😸 Party Time Meow!';
+const DEFAULT_PARTY_NAME = 'Party Time Meow!';
 // Verified against when an email has no account, so failed logins take the same time either way
 const DUMMY_PASSWORD_HASH = '$2y$12$Hkvnt6vjjtCkXZgLtHirTu1P.83mQtQNYaE0M588Y.2Hyh8iE59AO';
 
