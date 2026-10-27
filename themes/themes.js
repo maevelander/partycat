@@ -9,9 +9,6 @@
         { id: 'calm', name: 'Calm Cat' }
     ];
     var STORAGE_KEY = 'partycat-theme';
-    // Cache-busting version, shared with the ?v= on the <link>/<script> tags in the
-    // HTML pages. Bump them all together on each deploy so the CDN serves fresh files.
-    var ASSET_VERSION = '2026102701';
     var DEFAULT_THEME = 'confetti';
 
     function findTheme(id) {
@@ -40,7 +37,7 @@
     function applyTheme(id) {
         var theme = findTheme(id) || findTheme(DEFAULT_THEME);
         var link = document.getElementById('theme-stylesheet');
-        var href = 'themes/' + theme.id + '/theme.css?v=' + ASSET_VERSION;
+        var href = 'themes/' + theme.id + '/theme.css';
         if (link && link.getAttribute('href') !== href) {
             link.setAttribute('href', href);
         }
