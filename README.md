@@ -80,14 +80,14 @@ How it works: the app keeps a random ID in the browser's `localStorage` and send
 
 partycat.app runs on shared PHP hosting. A deploy replaces the whole site, so upload all of these together:
 
-- `index.html`, `about.html`, `legal.html`, `analytics.html`, `style.css`, `purrrfect.jpg`
+- `index.html`, `about.html`, `legal.html`, `analytics.html`, `style.css`, and the whole `themes/` folder
 - `api/index.php`, `api/.htaccess`, `api/config.php`, `api/lib/PHPMailer/`
 
 Don't upload `api/config.local.php`, `schema.sql`, `CLAUDE.md` or other repo files. On the server, the app connects to MySQL at `127.0.0.1`.
 
 ## 🎨 Design Approach
 
-- **Apple-inspired Design** - Clean, modern interface with smooth animations
+- **Themes** - Four themes, switched with the cat button at the bottom right: Confetti (default), Astro Cat, Loose Thread and Calm Cat. The choice is saved in the browser (`partycat-theme` in `localStorage`)
 - **Mobile-First** - Responsive design that works on all devices  
 - **Progressive Enhancement** - Core functionality works without JavaScript
 - **Accessibility** - Keyboard navigation and screen reader support

@@ -1,0 +1,195 @@
+/* ==========================================================================
+   Party Cat theme · Astro Cat
+   Deep-space blue, starfield, space cats in the margins, planet stats in orbit.
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Rubik:wght@500;600;700;800&display=swap');
+
+:root {
+    --font-body: 'Rubik', system-ui, sans-serif;
+    --font-display: 'Russo One', 'Rubik', sans-serif;
+
+    --page-bg: #141F66;
+    --ink: #0E1A4F;
+    --muted: #4A5585;
+    --line: #D6DCF5;
+
+    --card: #FFFFFF;
+    --card-border: 0 solid transparent;
+    --card-radius: 36px;
+    --card-shadow: 0 24px 60px rgba(5, 10, 40, 0.35);
+    --card-pad: 26px 40px 42px;
+    --card-max: 880px;
+
+    --accent: #2340E0;
+    --accent-ink: #FFFFFF;
+    --accent-hover: #3452F0;
+    --accent-border: 0 solid transparent;
+    --link: #2340E0;
+
+    --yes: #3DD17E;  --yes-ink: #0E1A4F;  --yes-tint: #E5F8EC;  --yes-badge-ink: #0E1A4F;
+    --no: #FF8A3D;   --no-ink: #0E1A4F;   --no-tint: #FFF0E5;   --no-badge-ink: #0E1A4F;
+    --pend: #D3D7E3; --pend-ink: #0E1A4F; --pend-tint: #D3D7E3; --pend-badge-bg: #D3D7E3;
+    --total: #6F95FF;
+
+    --control-radius: 999px;
+    --control-height: 56px;
+    --input-border: 2px solid #0E1A4F;
+    --input-focus: #2340E0;
+
+    --tab-bg: #FFFFFF;
+    --tab-ink: #0E1A4F;
+    --tab-border: 2px solid #D6DCF5;
+    --tab-active-bg: #2340E0;
+    --tab-active-ink: #FFFFFF;
+    --tab-active-border: 2px solid #2340E0;
+    --tab-hover-bg: #EEF1FF;
+    --tabs-track-solid: #E3E8FF;
+
+    --row-bg: #F2F3F7;
+    --row-border: 0 solid transparent;
+    --row-divider: 0 solid transparent;
+    --row-radius: 999px;
+    --row-gap: 10px;
+    --row-pad: 8px 8px 8px 18px;
+    --row-yes-bg: #E5F8EC;
+    --row-no-bg: #FFF0E5;
+    --row-pend-bg: #F2F3F7;
+    --row-done-bg: #E5F8EC;
+    --marker-size: 18px;
+
+    --btn-border: 0 solid transparent;
+    --btn-hover-bg: #E3E8FF;
+
+    --header-btn-border: 2px solid #D6DCF5;
+    --login-bg: #0E1A4F;
+    --login-ink: #FFFFFF;
+    --toggle-track: #E3E8FF;
+    --toggle-on: #6F95FF;
+    --toggle-knob: #2340E0;
+
+    --footer-ink: #FFFFFF;
+    --footer-link: #FFFFFF;
+    --page-title-ink: #FFFFFF;
+    --heart: #FF8A3D;
+
+    --switcher-bg: #FFFFFF;
+    --switcher-border: 3px solid #6F95FF;
+    --switcher-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    --switcher-icon-size: 46px;
+
+    --ear-display: block;
+    --ear-w: 110px;
+    --ear-h: 80px;
+    --ear-inset: 50px;
+
+    --title-size: 68px;
+    --title-weight: 400;
+    --title-ls: 0;
+    --title-accent: #2340E0;
+    --title-hover: #EEF1FF;
+
+    --stat-size: 40px;
+    --stat-weight: 400;
+    --stat-num-ink: #0E1A4F;
+
+    --modal-backdrop: rgba(10, 16, 60, 0.6);
+}
+
+/* Artwork files */
+.theme-toggle-icon { background-image: url('switcher.svg'); }
+.container::before, .container::after,
+.auth-container::before, .auth-container::after { background-image: url('ear.svg'); }
+
+.theme-art { background: url('stars-layer.svg') no-repeat 0 0 / 100% 100%; }
+.theme-art .art-1 { background-image: url('cat-ufo.svg');        width: 190px; height: 160px; left: 0.5%;  top: 300px; transform: rotate(-12deg); }
+.theme-art .art-2 { background-image: url('constellation.svg');  width: 175px; height: 128px; left: 1.5%;  top: 600px; }
+.theme-art .art-3 { background-image: url('cat-astronaut.svg');  width: 170px; height: 200px; right: 1.5%; top: 330px; transform: rotate(22deg); }
+.theme-art .art-4 { background-image: url('cat-rocket.svg');     width: 190px; height: 140px; right: 0.5%; top: 700px; transform: rotate(-22deg); }
+.theme-art .art-5 { background-image: url('planet-alien.svg');   width: 440px; height: 560px; left: -190px; bottom: -200px; }
+
+/* Hero astronaut cat above the title */
+.title-block { gap: 14px; margin: 8px 0 30px; }
+.hero-art { display: block; width: 150px; height: 170px; background-image: url('hero.svg'); }
+.auth-container .hero-art { width: 112px; height: 128px; }
+
+.tab { height: 48px; padding: 0 24px; font-size: 17px; font-weight: 600; }
+.tab.active { font-weight: 700; }
+.toggle-label { font-size: 15px; }
+.clear-data-btn, .login-btn, .logout-btn, .upgrade-btn { font-size: 15px; }
+.login-btn { border-color: #0E1A4F; }
+
+.add-guest input, .add-todo input, .add-shopping-item input { font-size: 17px; font-weight: 500; }
+.add-guest button, .add-todo button, .add-shopping-item button { font-weight: 800; font-size: 17px; }
+
+/* Planet stats along a dotted orbit */
+.stats, .todo-stats, .shopping-stats {
+    position: relative;
+    gap: 14px;
+    margin-bottom: 40px;
+}
+.stats::before, .todo-stats::before, .shopping-stats::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 140px;
+    background: url('orbit.svg') no-repeat 0 0 / 100% 100%;
+    pointer-events: none;
+}
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
+.stat:nth-child(1), .stat:nth-child(4) { transform: translateY(18px); }
+.stat:nth-child(2), .stat:nth-child(3) { transform: translateY(-4px); }
+.todo-stats .stat:nth-child(3), .shopping-stats .stat:nth-child(3) { transform: translateY(18px); }
+.stat .stat-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 110px;
+    color: #0E1A4F !important;
+    background: url('planet-pending.svg') no-repeat center / contain;
+}
+.stat:nth-child(1) .stat-number { background-image: url('planet-total.svg'); }
+.stats .stat:nth-child(2) .stat-number,
+.todo-stats .stat:nth-child(2) .stat-number,
+.shopping-stats .stat:nth-child(2) .stat-number { background-image: url('planet-yes.svg'); }
+.stats .stat:nth-child(3) .stat-number { background-image: url('planet-no.svg'); }
+.stat-label {
+    margin: 0;
+    padding: 0 6px;
+    background: #FFFFFF;
+    color: #0E1A4F;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Pill rows with a little planet marker */
+.guest-item > div:first-child { gap: 10px; }
+.guest-item > div:first-child::before { border: 0; background: #D3D7E3; box-shadow: inset -4px -3px 0 #B6BCCD; }
+.guest-item.yes > div:first-child::before { background: #3DD17E; box-shadow: inset -4px -3px 0 #25B064; }
+.guest-item.no > div:first-child::before { background: #FF8A3D; box-shadow: inset -4px -3px 0 #E5671A; }
+.guest-name, .todo-text, .shopping-text { font-size: 18px; font-weight: 700; }
+.todo-text, .shopping-text { padding-left: 4px; }
+.guest-count { font-size: 15px; }
+
+.guest-actions { gap: 6px; }
+.guest-actions .btn:not(.btn-delete) { background: #FFFFFF; height: 40px; }
+.guest-actions .btn-yes { border-radius: 999px; }
+.btn-delete { width: 44px; height: 44px; background: transparent; }
+.btn-delete:hover { background: #FFFFFF; }
+
+/* About / Legal */
+.page-section h2 { border-bottom: 2px dashed #D6DCF5; }
+
+@media (max-width: 768px) {
+    .stat { transform: none !important; }
+    .stats::before, .todo-stats::before, .shopping-stats::before { display: none; }
+    .guest-item, .todo-item, .shopping-item { border-radius: 26px; padding: 14px; }
+}

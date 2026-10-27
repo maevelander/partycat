@@ -1,0 +1,158 @@
+/* ==========================================================================
+   Party Cat theme · Calm Cat
+   Misty mint and teal from the meditating-cat artwork, drifting petals,
+   soft serif headings. Quiet, clean, modern.
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-display: 'Fraunces', serif;
+
+    --page-bg: #E3F1EF;
+    --ink: #1F3D3C;
+    --muted: #6C8685;
+    --line: #D5E6E3;
+
+    --card: #FFFFFF;
+    --card-border: 1px solid #D5E6E3;
+    --card-radius: 28px;
+    --card-shadow: 0 1px 2px rgba(31, 61, 60, 0.04), 0 14px 44px rgba(31, 61, 60, 0.08);
+    --card-pad: 28px 44px 40px;
+    --card-max: 860px;
+
+    --accent: #3E8A86;
+    --accent-ink: #FFFFFF;
+    --accent-hover: #357C78;
+    --accent-border: 0 solid transparent;
+    --link: #3E8A86;
+
+    --yes: #3E8A86;  --yes-ink: #FFFFFF;  --yes-tint: #E4F1EF;
+    --no: #D3806F;   --no-ink: #FFFFFF;   --no-tint: #FBEDEA;
+    --pend: #A6BDBA; --pend-ink: #1F3D3C; --pend-tint: #E6F0EE; --pend-badge-bg: #E6F0EE;
+    --total: #1F3D3C;
+
+    --control-radius: 14px;
+    --control-height: 50px;
+    --input-border: 1px solid #D5E6E3;
+    --input-focus: #3E8A86;
+
+    --tab-gap: 4px;
+    --tabs-pad: 4px;
+    --tabs-track: #EEF6F5;
+    --tabs-track-solid: #EEF6F5;
+    --tab-bg: transparent;
+    --tab-ink: #6C8685;
+    --tab-border: 0 solid transparent;
+    --tab-active-bg: #FFFFFF;
+    --tab-active-ink: #1F3D3C;
+    --tab-active-border: 0 solid transparent;
+    --tab-hover-bg: rgba(255, 255, 255, 0.6);
+
+    --row-divider: 1px solid #D5E6E3;
+    --row-pad: 12px 0;
+    --marker-size: 8px;
+
+    --btn-border: 1px solid #D5E6E3;
+    --btn-ink: #6C8685;
+    --btn-hover-bg: #F1F7F6;
+    --delete-ink: #6C8685;
+
+    --header-btn-border: 1px solid #D5E6E3;
+    --login-bg: #1F3D3C;
+    --login-ink: #FFFFFF;
+    --toggle-track: #D5E6E3;
+    --toggle-on: #3E8A86;
+    --toggle-knob: #FFFFFF;
+
+    --footer-ink: #5F7B79;
+    --footer-link: #5F7B79;
+    --heart: #D3806F;
+
+    --switcher-bg: #FFFFFF;
+    --switcher-border: 1px solid #D5E6E3;
+    --switcher-shadow: 0 1px 2px rgba(31, 61, 60, 0.04), 0 14px 44px rgba(31, 61, 60, 0.12);
+    --switcher-icon-size: 54px;
+    --switcher-icon-radius: 999px;
+
+    --title-size: 64px;
+    --title-weight: 300;
+    --title-ls: -0.03em;
+    --title-hover: #F1F7F6;
+
+    --stat-size: 52px;
+    --stat-weight: 300;
+    --stats-gap: 0;
+    --stats-border: 1px solid #D5E6E3;
+    --stat-pad: 22px 8px;
+
+    --modal-backdrop: rgba(31, 61, 60, 0.35);
+}
+
+/* Artwork files */
+.theme-toggle-icon { background-image: url('switcher.png'); background-size: cover; }
+
+.theme-art .art-1 { background-image: url('drift-left.svg');  width: 340px; height: 1600px; left: 0;  top: 0; background-position: left top; }
+.theme-art .art-2 { background-image: url('drift-right.svg'); width: 340px; height: 1600px; right: 0; top: 0; background-position: right top; }
+.theme-art .art-3 { background-image: url('leaf-left.svg');   width: 180px; height: 140px;  left: -10px;  bottom: 0; }
+.theme-art .art-4 { background-image: url('leaf-right.svg');  width: 180px; height: 140px;  right: -10px; bottom: 0; }
+
+/* Hero: the meditating cat, with a quiet tagline under the title */
+.title-block { gap: 0; margin: 20px 0 26px; }
+.hero-art { display: block; width: 250px; height: 275px; margin-top: -10px; margin-bottom: 18px; background-image: url('hero.png'); }
+.title-block::after {
+    content: "Breathe in. Invite everyone.";
+    margin-top: 12px;
+    font-size: 16px;
+    color: #6C8685;
+}
+.auth-container .hero-art { width: 170px; height: 187px; margin-bottom: 10px; }
+.auth-container .title-block::after { display: none; }
+
+.toggle-label { font-size: 13px; font-weight: 500; }
+.clear-data-btn, .login-btn, .logout-btn, .upgrade-btn { height: 40px; font-weight: 500; }
+.login-btn { font-weight: 600; }
+
+.tab { height: 40px; font-weight: 500; }
+.tab.active { box-shadow: 0 1px 2px rgba(31, 61, 60, 0.08); }
+
+/* Stats sit above the add form */
+.stats, .todo-stats, .shopping-stats { order: -1; margin-bottom: 28px; }
+.stat-label { font-size: 13px; font-weight: 500; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.stats .stat:nth-child(2) .stat-label::before,
+.stats .stat:nth-child(3) .stat-label::before,
+.stats .stat:nth-child(4) .stat-label::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #3E8A86;
+    box-sizing: border-box;
+}
+.stats .stat:nth-child(3) .stat-label::before { background: #D3806F; }
+.stats .stat:nth-child(4) .stat-label::before { background: transparent; border: 1.5px solid #A6BDBA; }
+
+.add-guest, .add-todo, .add-shopping-item { margin-bottom: 12px; }
+.add-guest button, .add-todo button, .add-shopping-item button { font-size: 15px; font-weight: 600; padding: 0 24px; }
+
+/* Quiet rows */
+.guest-name, .todo-text, .shopping-text { font-size: 17px; font-weight: 500; }
+.guest-count { font-size: 13px; }
+.status-badge { display: none; }
+.btn { height: 36px; padding: 0 14px; font-size: 13px; font-weight: 500; }
+.btn-delete { width: 40px; height: 40px; border-color: transparent; }
+.btn-delete::before { width: 16px; height: 16px; }
+.guest-item.pending .guest-actions .btn.btn-pending { color: #1F3D3C; }
+
+.footer { font-size: 13px; }
+.footer-love, .footer-links { font-weight: 400; }
+.footer-link { text-decoration: none; }
+.footer-link:hover { text-decoration: underline; color: #1F3D3C; }
+
+/* About / Legal */
+.page-section h2 { font-weight: 400; }
+.page-header h1 { font-weight: 300; }
+
+@media (max-width: 768px) {
+    .hero-art { width: 190px; height: 209px; }
+}

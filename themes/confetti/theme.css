@@ -1,0 +1,187 @@
+/* ==========================================================================
+   Party Cat theme · Confetti (default)
+   Navy night, sticker-sheet card with a yellow offset shadow, cat ears,
+   party cats in the margins and confetti everywhere.
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,800&display=swap');
+
+:root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-display: var(--font-body);
+
+    --page-bg: #1B1B3A;
+    --ink: #1B1B3A;
+    --muted: #4A4A66;
+    --line: #1B1B3A;
+
+    --card: #FFFFFF;
+    --card-border: 3px solid #1B1B3A;
+    --card-radius: 28px;
+    --card-shadow: 8px 8px 0 #FFC93C;
+    --card-pad: 26px 36px 40px;
+    --card-max: 840px;
+
+    --accent: #FFC93C;
+    --accent-ink: #1B1B3A;
+    --accent-hover: #FFD45E;
+    --accent-border: 2px solid #1B1B3A;
+    --accent-shadow: 4px 4px 0 #1B1B3A;
+    --link: #2F4BFF;
+
+    --yes: #2F4BFF;  --yes-ink: #FFFFFF;  --yes-tint: #E8EDFF;
+    --no: #FF4F8B;   --no-ink: #1B1B3A;   --no-tint: #FFE3EC;   --no-badge-ink: #1B1B3A;
+    --pend: #1B1B3A; --pend-ink: #1B1B3A; --pend-tint: #E4E4EE;
+    --pend-badge-bg: #FFFFFF; --pend-badge-border: 2px dashed #1B1B3A;
+    --total: #1B1B3A;
+
+    --control-radius: 16px;
+    --control-height: 56px;
+    --input-border: 2px solid #1B1B3A;
+    --input-focus: #2F4BFF;
+
+    --tab-gap: 8px;
+    --tab-bg: #FFFFFF;
+    --tab-ink: #1B1B3A;
+    --tab-border: 2px solid #1B1B3A;
+    --tab-active-bg: #1B1B3A;
+    --tab-active-ink: #FFFFFF;
+    --tab-hover-bg: #FFF4D6;
+
+    --row-bg: #FFFFFF;
+    --row-border: 2px solid #1B1B3A;
+    --row-divider: 2px solid #1B1B3A;
+    --row-radius: 18px;
+    --row-gap: 10px;
+    --row-pad: 10px 10px 10px 20px;
+    --row-yes-bg: #E8EDFF;
+    --row-no-bg: #FFE3EC;
+    --row-done-bg: #E8EDFF;
+    --marker-display: none;
+    --active-border: #1B1B3A;
+
+    --btn-border: 2px solid #1B1B3A;
+    --btn-hover-bg: #FFF4D6;
+
+    --header-btn-border: 2px solid #1B1B3A;
+    --login-bg: #1B1B3A;
+    --login-ink: #FFFFFF;
+    --toggle-track: #FFFFFF;
+    --toggle-border: 2px solid #1B1B3A;
+    --toggle-on: #FFC93C;
+    --toggle-knob: #1B1B3A;
+
+    --footer-ink: #FFFFFF;
+    --footer-link: #FFFFFF;
+    --page-title-ink: #FFFFFF;
+    --heart: #FF4F8B;
+
+    --switcher-bg: #FFFFFF;
+    --switcher-border: 3px solid #1B1B3A;
+    --switcher-shadow: 4px 4px 0 #FFC93C;
+    --switcher-icon-size: 50px;
+
+    --ear-display: block;
+    --ear-w: 110px;
+    --ear-h: 80px;
+    --ear-inset: 60px;
+
+    --title-size: 64px;
+    --title-weight: 800;
+    --title-ls: -0.03em;
+    --title-hover: #FFF4D6;
+
+    --stat-size: 44px;
+    --stat-align: left;
+    --stat-pad: 16px;
+    --stat-radius: 20px;
+    --stats-gap: 14px;
+
+    --modal-backdrop: rgba(27, 27, 58, 0.6);
+}
+
+/* Artwork files (urls stay in this file so they resolve next to it) */
+.theme-toggle-icon { background-image: url('switcher.svg'); }
+.container::before, .container::after,
+.auth-container::before, .auth-container::after { background-image: url('ear.svg'); }
+
+/* Margin art */
+.theme-art {
+    background: url('confetti-layer.svg') no-repeat 0 0 / 100% 100%;
+}
+.theme-art .art-1 { background-image: url('cat-gift.svg');    width: 172px; height: 182px; left: 14px;  top: 40px;  transform: rotate(-4deg); }
+.theme-art .art-2 { background-image: url('cat-blower.svg');  width: 200px; height: 147px; right: 4px;  top: 120px; transform: rotate(6deg); }
+.theme-art .art-3 { background-image: url('cat-cake.svg');    width: 196px; height: 184px; left: 8px;   top: 780px; }
+.theme-art .art-4 { background-image: url('cat-balloon.svg'); width: 128px; height: 216px; right: 36px; top: 660px; transform: rotate(-5deg); }
+
+/* Hero cat above the title */
+.title-block { gap: 6px; margin: 18px 0 30px; }
+.hero-art { display: block; width: 104px; height: 104px; background-image: url('hero.svg'); }
+
+/* "Meow!" sticker */
+.title-accent {
+    display: inline-block;
+    background: #FFC93C;
+    color: #1B1B3A;
+    padding: 2px 14px 8px;
+    border-radius: 14px;
+    border: 3px solid #1B1B3A;
+    box-shadow: 4px 4px 0 #1B1B3A;
+    transform: rotate(-3deg);
+}
+
+.tab { height: 48px; padding: 0 24px; font-size: 17px; font-weight: 600; }
+.toggle-label { font-size: 15px; }
+.clear-data-btn, .login-btn, .logout-btn, .upgrade-btn { font-size: 15px; font-weight: 600; }
+
+.add-guest input, .add-todo input, .add-shopping-item input { font-size: 18px; font-weight: 500; padding: 0 20px; }
+.add-guest button, .add-todo button, .add-shopping-item button { font-size: 18px; font-weight: 800; }
+
+/* Sticker stat cards in status colours */
+.stat { border: 2px solid #1B1B3A; transform: rotate(-1.5deg); }
+.stat:nth-child(2) { transform: rotate(1deg); }
+.stat:nth-child(3) { transform: rotate(-1deg); }
+.stat:nth-child(4) { transform: rotate(1.5deg); }
+.stat .stat-number, .stat .stat-label { color: #1B1B3A !important; }
+.stat-label { font-size: 15px; margin-top: 6px; }
+
+.stats .stat:nth-child(1), .todo-stats .stat:nth-child(1), .shopping-stats .stat:nth-child(1) { background: #1B1B3A; }
+.stats .stat:nth-child(1) *, .todo-stats .stat:nth-child(1) *, .shopping-stats .stat:nth-child(1) * { color: #FFFFFF !important; }
+.stats .stat:nth-child(2), .todo-stats .stat:nth-child(2), .shopping-stats .stat:nth-child(2) { background: #2F4BFF; }
+.stats .stat:nth-child(2) *, .todo-stats .stat:nth-child(2) *, .shopping-stats .stat:nth-child(2) * { color: #FFFFFF !important; }
+.stats .stat:nth-child(3) { background: #FF4F8B; }
+.stats .stat:nth-child(4), .todo-stats .stat:nth-child(3), .shopping-stats .stat:nth-child(3) { background: #FFFFFF; border-style: dashed; }
+
+/* Rows: segmented Yes / No / Pending control */
+.guest-item, .todo-item, .shopping-item { border-bottom: 2px solid #1B1B3A; }
+.guest-name, .todo-text, .shopping-text { font-size: 18px; font-weight: 600; }
+.guest-count { font-size: 15px; }
+.status-badge { font-size: 13px; padding: 3px 10px; border: 2px solid #1B1B3A; }
+.status-yes { border-color: #1B1B3A; }
+
+.guest-actions { gap: 8px; }
+.guest-actions .btn:not(.btn-delete) {
+    height: 44px;
+    border-radius: 0;
+    border: 2px solid #1B1B3A;
+    font-weight: 600;
+    font-size: 15px;
+}
+.guest-actions { --btn-group-gap: 0; gap: 0; }
+.guest-actions .btn.btn-yes:not(.btn-delete) { border-radius: 999px 0 0 999px; }
+.guest-actions .btn.btn-no:not(.btn-delete) { margin-left: -2px; }
+.guest-actions .btn.btn-pending:not(.btn-delete) { border-radius: 0 999px 999px 0; margin-left: -2px; }
+.guest-actions .btn-delete { margin-left: 8px; }
+
+
+.btn-delete { width: 44px; height: 44px; border: 2px solid #1B1B3A; background: #FFFFFF; }
+.todo-actions .btn, .shopping-actions .btn { border-color: #1B1B3A; }
+
+.empty-state { color: #4A4A66; }
+
+/* About / Legal */
+.page-section h2 { border-bottom: 2px dashed #1B1B3A; }
+
+@media (max-width: 768px) {
+    .guest-actions .btn:not(.btn-delete) { flex: 1; }
+    .stat { transform: none !important; }
+}

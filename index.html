@@ -5,11 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Party Cat - RSVP Tracker & Todo List</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" id="theme-stylesheet" href="themes/confetti/theme.css">
+    <script src="themes/themes.js"></script>
 </head>
 <body>
+    <!-- Theme artwork (decorative; each theme fills these slots) -->
+    <div class="theme-art" aria-hidden="true">
+        <span class="art art-1"></span>
+        <span class="art art-2"></span>
+        <span class="art art-3"></span>
+        <span class="art art-4"></span>
+        <span class="art art-5"></span>
+        <span class="art art-6"></span>
+    </div>
+
     <!-- Authentication Container -->
     <div id="authContainer" class="auth-container">
-        <h1>🎉 Party Cat</h1>
+        <div class="title-block">
+            <div class="hero-art" aria-hidden="true"></div>
+            <h1>🎉 Party Cat</h1>
+        </div>
         
         <div class="auth-tabs">
             <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
@@ -151,7 +166,11 @@
             </div>
         </div>
         
-        <h1 id="partyTitle" class="editable-title" onclick="editPartyTitle()">😸 Party Time Meow!</h1>
+        <div class="title-block">
+            <div class="hero-art" aria-hidden="true"></div>
+            <h1 id="partyTitle" class="editable-title" onclick="editPartyTitle()"><span class="title-emoji">😸 </span>Party Time <span class="title-accent">Meow!</span></h1>
+            <div class="hero-art-alt" aria-hidden="true"></div>
+        </div>
         
         <div class="tabs">
             <button class="tab active" onclick="switchTab('rsvp')">RSVP Tracker</button>
@@ -285,41 +304,12 @@
         </div>
     </div>
 
-    <!-- Background toggle button -->
-    <button class="bg-toggle" onclick="
-        document.body.classList.remove('bg-grey', 'bg-blue', 'bg-purple', 'bg-red');
-        if (!window.bgIndex) window.bgIndex = 0;
-        window.bgIndex = (window.bgIndex + 1) % 5;
-        if (window.bgIndex === 1) {
-            document.body.classList.add('bg-grey');
-        } else if (window.bgIndex === 2) {
-            document.body.classList.add('bg-blue');
-        } else if (window.bgIndex === 3) {
-            document.body.classList.add('bg-purple');
-        } else if (window.bgIndex === 4) {
-            document.body.classList.add('bg-red');
-        }
-        localStorage.setItem('partycat-bg', window.bgIndex);
-    " title="Change background">🎨</button>
+    <!-- Theme switcher -->
+    <button type="button" class="theme-toggle" onclick="cycleTheme()" title="Change theme" aria-label="Change theme">
+        <span class="theme-toggle-icon" aria-hidden="true"></span>
+    </button>
 
     <script>
-        // Load saved background preference
-        (function() {
-            const saved = localStorage.getItem('partycat-bg');
-            if (saved) {
-                window.bgIndex = parseInt(saved);
-                if (window.bgIndex === 1) {
-                    document.body.classList.add('bg-grey');
-                } else if (window.bgIndex === 2) {
-                    document.body.classList.add('bg-blue');
-                } else if (window.bgIndex === 3) {
-                    document.body.classList.add('bg-purple');
-                } else if (window.bgIndex === 4) {
-                    document.body.classList.add('bg-red');
-                }
-            }
-        })();
-
         // Call the Party Cat API (api/index.php). Sends a JSON body as POST when one is given.
         // Login state travels in an HttpOnly session cookie, so no token handling is needed here.
         async function api(action, body = null, params = {}) {
@@ -839,7 +829,16 @@
 
         function updatePartyTitle() {
             const titleElement = document.getElementById('partyTitle');
-            titleElement.textContent = currentParty.name;
+            titleElement.innerHTML = decoratePartyTitle(currentParty.name);
+        }
+
+        // Wrap parts of the title so themes can style them: the default 😸 (replaced by
+        // each theme's hero cat) and a closing "Meow!" (the theme's accent colour).
+        function decoratePartyTitle(name) {
+            let html = escapeHtml(name);
+            html = html.replace(/^😸\s*/, '<span class="title-emoji">😸 </span>');
+            html = html.replace(/(meow!?)$/i, '<span class="title-accent">$1</span>');
+            return html;
         }
 
         function editPartyTitle() {
@@ -1487,7 +1486,7 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-love">
-                Made with 💙 for party cats!
+                Made with <span class="footer-heart" role="img" aria-label="love">💙</span> for party cats!
             </div>
             <div class="footer-links">
                 <a href="about.html" class="footer-link">About</a>

@@ -1,0 +1,213 @@
+/* ==========================================================================
+   Party Cat theme · Loose Thread
+   Periwinkle paper, hand-drawn doodle cats, a magenta thread running through.
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --font-body: 'Instrument Sans', system-ui, sans-serif;
+    --font-display: 'Instrument Serif', serif;
+
+    --page-bg: #D3CBFF;
+    --ink: #1A1530;
+    --muted: #5B5570;
+    --line: #E6E0F2;
+
+    --card: #FFFFFF;
+    --card-border: 2px solid #1A1530;
+    --card-radius: 40px;
+    --card-shadow: none;
+    --card-pad: 26px 44px 44px;
+    --card-max: 880px;
+
+    --accent: #D4157A;
+    --accent-ink: #FFFFFF;
+    --accent-hover: #C0106A;
+    --accent-border: 0 solid transparent;
+    --link: #D4157A;
+
+    --yes: #0E8A65;  --yes-ink: #FFFFFF;  --yes-tint: #DDF3EC;  --yes-badge-ink: #0B6E51;
+    --no: #1A1530;   --no-ink: #FFFFFF;   --no-tint: #EEEAF5;   --no-badge-ink: #FFFFFF;
+    --pend: #8A84A0; --pend-ink: #1A1530; --pend-tint: #E6E1F0; --pend-badge-bg: #EEEAF5;
+    --total: #D4157A;
+
+    --control-radius: 999px;
+    --control-height: 54px;
+    --input-border: 2px solid #1A1530;
+    --input-focus: #D4157A;
+
+    --tab-gap: 28px;
+    --tab-bg: transparent;
+    --tab-ink: #5B5570;
+    --tab-border: 0 solid transparent;
+    --tab-active-bg: transparent;
+    --tab-active-ink: #1A1530;
+    --tab-active-border: 0 solid transparent;
+    --tabs-track-solid: #EEEAF5;
+
+    --row-bg: transparent;
+    --row-divider: 1px solid #E6E0F2;
+    --row-pad: 10px 0;
+    --marker-size: 26px;
+
+    --btn-border: 1.5px dashed #B9B0CF;
+    --btn-bg: #FFFFFF;
+    --btn-hover-bg: #F3F1F8;
+    --active-border: transparent;
+
+    --header-btn-border: 1.5px solid #D9D3E6;
+    --login-bg: #1A1530;
+    --login-ink: #FFFFFF;
+    --toggle-track: #FFFFFF;
+    --toggle-border: 2px solid #1A1530;
+    --toggle-on: #FFC2D9;
+    --toggle-knob: #D4157A;
+
+    --footer-ink: #1A1530;
+    --footer-link: #1A1530;
+    --heart: #D4157A;
+
+    --switcher-bg: #FFFFFF;
+    --switcher-border: 2px solid #1A1530;
+    --switcher-shadow: 0 6px 18px rgba(26, 21, 48, 0.18);
+    --switcher-icon-size: 54px;
+
+    --ear-display: block;
+    --ear-w: 90px;
+    --ear-h: 60px;
+    --ear-inset: 70px;
+
+    --title-size: 92px;
+    --title-weight: 400;
+    --title-ls: -0.02em;
+    --title-accent: #D4157A;
+    --title-hover: #F6F3FC;
+
+    --stat-size: 64px;
+    --stat-weight: 400;
+    --stats-gap: 0;
+    --stats-border: 2px dashed #1A1530;
+    --stat-pad: 18px 8px;
+    --stat-label-ink: #1A1530;
+    --stat-no-num: #1A1530;
+
+    --modal-backdrop: rgba(26, 21, 48, 0.45);
+}
+
+/* Artwork files */
+.theme-toggle-icon { background-image: url('switcher.svg'); }
+.container::before, .container::after,
+.auth-container::before, .auth-container::after { background-image: url('ear.svg'); }
+.container::before, .container::after { top: -56px; }
+
+.theme-art .art-1 { background-image: url('cat-ball.svg');     width: 190px; height: 250px; left: 4px;  top: 40px; }
+.theme-art .art-2 { background-image: url('cat-tangled.svg');  width: 190px; height: 270px; left: 4px;  top: 470px; }
+.theme-art .art-3 { background-image: url('cat-sleeping.svg'); width: 200px; height: 170px; right: 4px; top: 160px; }
+.theme-art .art-4 { background-image: url('cat-back.svg');     width: 190px; height: 250px; right: 4px; top: 720px; }
+.theme-art .art-5 { background-image: url('cat-chase.svg');    width: 430px; height: 140px; left: 0;    bottom: 14px; }
+
+/* Title row: party cat · two-line title · ball of yarn, then the thread */
+.title-block {
+    position: relative;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 12px;
+    margin: 14px 0 24px;
+    padding-bottom: 40px;
+}
+.title-block::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 34px;
+    background: url('wave.svg') no-repeat 0 0 / 100% 100%;
+}
+.hero-art { display: block; width: 140px; height: 170px; background-image: url('hero.svg'); }
+.hero-art-alt { display: block; width: 89px; height: 88px; margin-bottom: 4px; background-image: url('yarn-ball.svg'); }
+h1 { line-height: 0.9; }
+.title-accent { display: block; font-style: italic; }
+.auth-container .title-block { flex-direction: column; align-items: center; padding-bottom: 30px; }
+.auth-container .hero-art { width: 100px; height: 122px; }
+.auth-container h1 { font-size: 56px; }
+
+/* Text tabs with a wavy underline */
+.tabs { margin: 16px auto 30px; }
+.tab {
+    height: 44px;
+    padding: 0 4px;
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 400;
+}
+.tab.active {
+    font-style: italic;
+    text-decoration: underline wavy #D4157A;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 8px;
+}
+.tab:hover { color: #1A1530; }
+.auth-tab { font-weight: 600; }
+.auth-tab.active { background: #1A1530; color: #FFFFFF; }
+
+/* Stats sit above the add form, between dashed lines */
+.stats, .todo-stats, .shopping-stats { order: -1; margin-bottom: 30px; }
+.stat-label { font-weight: 600; color: #1A1530; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; }
+.stats .stat:nth-child(2) .stat-label::before,
+.stats .stat:nth-child(3) .stat-label::before,
+.stats .stat:nth-child(4) .stat-label::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #0E8A65;
+    box-sizing: border-box;
+}
+.stats .stat:nth-child(3) .stat-label::before { background: #1A1530; }
+.stats .stat:nth-child(4) .stat-label::before { background: transparent; border: 2px solid #8A84A0; }
+
+.add-guest, .add-todo, .add-shopping-item { margin-bottom: 18px; }
+.add-guest input, .add-todo input, .add-shopping-item input { font-size: 17px; font-weight: 500; }
+
+/* Rows: ball-of-yarn marker in the status colour */
+.guest-item > div:first-child { gap: 14px; }
+.guest-item > div:first-child::before {
+    border: 0;
+    border-radius: 0;
+    background: #8A84A0;
+    -webkit-mask: url('yarn-mark.svg') center / contain no-repeat;
+    mask: url('yarn-mark.svg') center / contain no-repeat;
+}
+.guest-item.yes > div:first-child::before { background: #0E8A65; }
+.guest-item.no > div:first-child::before { background: #1A1530; }
+.guest-name, .todo-text, .shopping-text { font-family: var(--font-display); font-size: 25px; font-weight: 400; line-height: 1.1; }
+.status-badge { font-weight: 700; }
+.status-pending { color: #5B5570; }
+.status-yes { background: #DDF3EC; }
+
+.btn { height: 44px; padding: 0 16px; font-weight: 600; }
+.guest-item .guest-actions .btn:not(.btn-delete) { border-style: dashed; }
+.guest-item.yes .guest-actions .btn.btn-yes,
+.guest-item.no .guest-actions .btn.btn-no,
+.guest-item.pending .guest-actions .btn.btn-pending { border-style: solid; }
+.btn-delete { background: transparent; border-color: transparent; }
+.todo-actions .btn-yes, .shopping-actions .btn-yes { border-style: solid; }
+
+/* Footer in italic serif */
+.footer-love { font-family: var(--font-display); font-style: italic; font-size: 20px; font-weight: 400; }
+.footer-links { font-weight: 600; }
+
+/* About / Legal */
+.page-section h2 { font-size: 30px; font-weight: 400; border-bottom: 2px dashed #1A1530; }
+.page-header h1 { font-size: 64px; }
+
+@media (max-width: 768px) {
+    .title-block { flex-direction: column; align-items: center; padding-bottom: 34px; }
+    .hero-art { width: 100px; height: 122px; }
+    .hero-art-alt { display: none; }
+    h1 { font-size: 60px; }
+    .tabs { gap: 8px; }
+    .tabs .tab { font-size: 19px; padding: 0 2px; }
+}
