@@ -11,21 +11,23 @@
 <body>
     <!-- Theme artwork (decorative; each theme fills these slots) -->
     <div class="theme-art" aria-hidden="true">
-        <span class="art art-1"></span>
-        <span class="art art-2"></span>
-        <span class="art art-3"></span>
-        <span class="art art-4"></span>
-        <span class="art art-5"></span>
-        <span class="art art-6"></span>
+        <div class="theme-art-frame">
+            <span class="art art-1"></span>
+            <span class="art art-2"></span>
+            <span class="art art-3"></span>
+            <span class="art art-4"></span>
+            <span class="art art-5"></span>
+            <span class="art art-6"></span>
+        </div>
     </div>
 
     <!-- Authentication Container -->
     <div id="authContainer" class="auth-container">
         <div class="title-block">
             <div class="hero-art" aria-hidden="true"></div>
-            <h1>🎉 Party Cat</h1>
+            <h1>Party Cat</h1>
         </div>
-        
+
         <div class="auth-tabs">
             <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
             <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
@@ -54,12 +56,6 @@
             </div>
             <div id="loginError" class="error-message"></div>
         </form>
-
-        <div class="guest-mode-option">
-            <p>or</p>
-            <button type="button" class="guest-mode-btn" onclick="startGuestMode()">Continue as Guest</button>
-            <p class="guest-mode-note">No account needed — data saves locally in your browser</p>
-        </div>
 
         <!-- Forgot Password Form -->
         <form id="forgotPasswordForm" class="auth-form" onsubmit="handleForgotPassword(event)">
@@ -143,6 +139,12 @@
             <div id="signupError" class="error-message"></div>
             <div id="signupSuccess" class="success-message"></div>
         </form>
+
+        <div class="guest-mode-option">
+            <p>or</p>
+            <button type="button" class="guest-mode-btn" onclick="startGuestMode()">Continue as Guest</button>
+            <p class="guest-mode-note">No account needed — data saves locally in your browser</p>
+        </div>
     </div>
 
     <!-- Main App Container -->
@@ -272,7 +274,7 @@
     <div id="confirmModal" class="modal hidden">
         <div class="modal-backdrop" onclick="hideConfirmModal()"></div>
         <div class="modal-content">
-            <h2>⚠️ Clear Data</h2>
+            <h2>Clear Data</h2>
             <p>Are you sure you want to reset your party space?</p>
             <div class="modal-warning">
                 <p>This will permanently delete:</p>
@@ -294,7 +296,7 @@
     <div id="upgradeModal" class="modal hidden">
         <div class="modal-backdrop" onclick="hideUpgradeModal()"></div>
         <div class="modal-content">
-            <h2>☁️ Save to Account</h2>
+            <h2>Save to Account</h2>
             <p>An account means you can access your party space and data across multiple devices. Without an account, data is stored locally in your browser. It will persist between sessions, but would be lost if you clear your cache.</p>
             <div class="modal-buttons">
                 <button class="modal-btn modal-cancel" onclick="hideUpgradeModal()">Maybe Later</button>
@@ -831,11 +833,11 @@
             titleElement.innerHTML = decoratePartyTitle(currentParty.name);
         }
 
-        // Wrap a closing "Meow!" so themes can give it their accent colour.
+        // Wrap the last word so themes can give it their accent style
+        // (a one-word title stays plain).
         function decoratePartyTitle(name) {
-            let html = escapeHtml(name);
-            html = html.replace(/(meow!?)$/i, '<span class="title-accent">$1</span>');
-            return html;
+            const html = escapeHtml(name);
+            return html.replace(/(\s)(\S+)$/, '$1<span class="title-accent">$2</span>');
         }
 
         function editPartyTitle() {

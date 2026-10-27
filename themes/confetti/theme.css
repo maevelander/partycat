@@ -105,13 +105,17 @@
 .auth-container::before, .auth-container::after { background-image: url('ear.svg'); }
 
 /* Margin art */
+/* Confetti tiles across the full width, one frame-wide tile at a time */
 .theme-art {
-    background: url('confetti-layer.svg') no-repeat 0 0 / 100% 100%;
+    background: url('confetti-layer.svg') repeat-x center top / min(100%, var(--art-max)) 100%;
 }
 .theme-art .art-1 { background-image: url('cat-gift.svg');    width: 172px; height: 182px; left: 14px;  top: 40px;  transform: rotate(-4deg); }
 .theme-art .art-2 { background-image: url('cat-blower.svg');  width: 200px; height: 147px; right: 4px;  top: 120px; transform: rotate(6deg); }
 .theme-art .art-3 { background-image: url('cat-cake.svg');    width: 196px; height: 184px; left: 8px;   top: 780px; }
 .theme-art .art-4 { background-image: url('cat-balloon.svg'); width: 128px; height: 216px; right: 36px; top: 660px; transform: rotate(-5deg); }
+
+/* Login card: square artwork */
+.auth-container .hero-art { width: 80px; }
 
 /* Hero cat above the title */
 .title-block { gap: 6px; margin: 18px 0 30px; }

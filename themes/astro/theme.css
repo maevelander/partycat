@@ -100,17 +100,20 @@
 .container::before, .container::after,
 .auth-container::before, .auth-container::after { background-image: url('ear.svg'); }
 
-.theme-art { background: url('stars-layer.svg') no-repeat 0 0 / 100% 100%; }
+/* Stars tile across the full width, one frame-wide tile at a time */
+.theme-art { background: url('stars-layer.svg') repeat-x center top / min(100%, var(--art-max)) 100%; }
 .theme-art .art-1 { background-image: url('cat-ufo.svg');        width: 190px; height: 160px; left: 0.5%;  top: 300px; transform: rotate(-12deg); }
 .theme-art .art-2 { background-image: url('constellation.svg');  width: 175px; height: 128px; left: 1.5%;  top: 600px; }
 .theme-art .art-3 { background-image: url('cat-astronaut.svg');  width: 170px; height: 200px; right: 1.5%; top: 330px; transform: rotate(22deg); }
 .theme-art .art-4 { background-image: url('cat-rocket.svg');     width: 190px; height: 140px; right: 0.5%; top: 700px; transform: rotate(-22deg); }
 .theme-art .art-5 { background-image: url('planet-alien.svg');   width: 440px; height: 560px; left: -190px; bottom: -200px; }
 
+/* Login card: artwork proportions */
+.auth-container .hero-art { width: 71px; }
+
 /* Hero astronaut cat above the title */
 .title-block { gap: 14px; margin: 8px 0 30px; }
 .hero-art { display: block; width: 150px; height: 170px; background-image: url('hero.svg'); }
-.auth-container .hero-art { width: 112px; height: 128px; }
 
 .tab { height: 48px; padding: 0 24px; font-size: 17px; font-weight: 600; }
 .tab.active { font-weight: 700; }

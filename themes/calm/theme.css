@@ -106,8 +106,9 @@
     font-size: 16px;
     color: #6C8685;
 }
-.auth-container .hero-art { width: 170px; height: 187px; margin-bottom: 10px; }
 .auth-container .title-block::after { display: none; }
+/* Login card: artwork proportions */
+.auth-container .hero-art { width: 73px; }
 
 .toggle-label { font-size: 13px; font-weight: 500; }
 .clear-data-btn, .login-btn, .logout-btn, .upgrade-btn { height: 40px; font-weight: 500; }

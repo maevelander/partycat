@@ -129,9 +129,9 @@
 .hero-art-alt { display: block; width: 89px; height: 88px; margin-bottom: 4px; background-image: url('yarn-ball.svg'); }
 h1 { line-height: 0.9; }
 .title-accent { display: block; font-style: italic; }
-.auth-container .title-block { flex-direction: column; align-items: center; padding-bottom: 30px; }
-.auth-container .hero-art { width: 100px; height: 122px; }
 .auth-container h1 { font-size: 56px; }
+/* Login card: artwork proportions */
+.auth-container .hero-art { width: 66px; }
 
 /* Text tabs with a wavy underline */
 .tabs { margin: 16px auto 30px; }

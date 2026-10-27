@@ -4,7 +4,8 @@
    Layout and structure for every page. Colours, fonts and shapes come from
    CSS custom properties that each theme sets in themes/<theme>/theme.css.
    The defaults below are a neutral fallback if no theme file loads.
-   Theme artwork slots: .theme-art .art-1….art-6 (page margins),
+   Theme artwork slots: .theme-art .art-1….art-6 (page margins, inside a
+   centred .theme-art-frame no wider than --art-max),
    .hero-art / .hero-art-alt (beside the title), .container::before/::after
    (card ears), .theme-toggle-icon (switcher button).
    ========================================================================== */
@@ -13,6 +14,8 @@
     --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-display: var(--font-body);
     --font-num: var(--font-display);
+
+    --art-max: 1440px;
 
     --page-bg: #F4F4F6;
     --ink: #1D1D1F;
@@ -127,6 +130,18 @@ button, input {
     overflow: hidden;
     pointer-events: none;
     z-index: 0;
+}
+
+/* Margin art is placed against this frame, not the window edges, so it stays
+   near the card on very wide screens. */
+.theme-art-frame {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: var(--art-max);
+    margin: 0 auto;
 }
 
 .theme-art .art {
@@ -665,11 +680,27 @@ h1 {
 }
 
 .auth-container .title-block {
-    margin-top: 0;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 24px;
 }
 
+/* A small hero cat to the left of the title, raised slightly because the
+   party hat makes a centred cat look low */
+.auth-container .hero-art {
+    width: 72px;
+    height: 80px;
+    margin: 0;
+    translate: 0 -6px;
+}
+
+/* Trim the heading to cap height and baseline, so the cat centres on the letters
+   rather than on a line box that includes room for descenders */
 .auth-container h1 {
     font-size: calc(var(--title-size, 64px) * 0.62);
+    text-box: trim-both cap alphabetic;
 }
 
 .auth-tabs {
