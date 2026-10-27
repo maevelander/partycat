@@ -354,7 +354,7 @@ function find_item(string $table, string $id, string $partyId): ?array
 function send_reset_email(string $email, string $token): void
 {
     global $config;
-    $link = rtrim($config['app_url'], '/') . '/?reset=' . $token;
+    $link = rtrim($config['app_url'], '/') . '/dashboard?reset=' . $token;
     $body = "Hi there,\n\n"
         . "Someone asked to reset the password for your Party Cat account. "
         . "Click the link below to choose a new password:\n\n$link\n\n"

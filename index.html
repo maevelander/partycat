@@ -3,1485 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Party Cat - RSVP Tracker & Todo List</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" id="theme-stylesheet" href="themes/confetti/theme.css">
-    <script src="themes/themes.js"></script>
-</head>
-<body>
-    <!-- Theme artwork (decorative; each theme fills these slots) -->
-    <div class="theme-art" aria-hidden="true">
-        <div class="theme-art-frame">
-            <span class="art art-1"></span>
-            <span class="art art-2"></span>
-            <span class="art art-3"></span>
-            <span class="art art-4"></span>
-            <span class="art art-5"></span>
-            <span class="art art-6"></span>
-        </div>
-    </div>
-
-    <!-- Authentication Container -->
-    <div id="authContainer" class="auth-container">
-        <div class="title-block">
-            <div class="hero-art" aria-hidden="true"></div>
-            <h1>Party Cat</h1>
-        </div>
-
-        <div class="auth-tabs">
-            <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
-            <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
-        </div>
-
-        <!-- Login Form -->
-        <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label for="loginEmail">Email</label>
-                <input type="email" id="loginEmail" required>
-            </div>
-            <div class="form-group">
-                <label for="loginPassword">Password</label>
-                <div class="password-input-container">
-                    <input type="password" id="loginPassword" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')" title="Show password">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <button type="submit" class="auth-button" id="loginButton">Login</button>
-            <div class="forgot-password">
-                <button type="button" class="forgot-password-link" onclick="showForgotPassword()">Forgot your password?</button>
-            </div>
-            <div id="loginError" class="error-message"></div>
-        </form>
-
-        <!-- Forgot Password Form -->
-        <form id="forgotPasswordForm" class="auth-form" onsubmit="handleForgotPassword(event)">
-            <div class="form-group">
-                <label for="resetEmail">Email Address</label>
-                <input type="email" id="resetEmail" required placeholder="Enter your email address">
-                <small>We'll send you a link to reset your password</small>
-            </div>
-            <!-- Honeypot: hidden from people, filled in by simple bots -->
-            <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
-            <button type="submit" class="auth-button" id="resetButton">Send Reset Link</button>
-            <div class="forgot-password">
-                <button type="button" class="forgot-password-link" onclick="showLogin()">Back to Login</button>
-            </div>
-            <div id="forgotError" class="error-message"></div>
-            <div id="forgotSuccess" class="success-message"></div>
-        </form>
-
-        <!-- Reset Password Form (opened from the emailed link) -->
-        <form id="resetPasswordForm" class="auth-form" onsubmit="handleResetPassword(event)">
-            <div class="form-group">
-                <label for="newPassword">New Password</label>
-                <div class="password-input-container">
-                    <input type="password" id="newPassword" required minlength="8">
-                    <button type="button" class="password-toggle" onclick="togglePassword('newPassword')" title="Show password">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="confirmNewPassword">Confirm New Password</label>
-                <div class="password-input-container">
-                    <input type="password" id="confirmNewPassword" required minlength="8">
-                    <button type="button" class="password-toggle" onclick="togglePassword('confirmNewPassword')" title="Show password">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <button type="submit" class="auth-button" id="resetPasswordButton">Set New Password</button>
-            <div class="forgot-password">
-                <button type="button" class="forgot-password-link" onclick="showLogin()">Back to Login</button>
-            </div>
-            <div id="resetPasswordError" class="error-message"></div>
-        </form>
-
-        <!-- Sign Up Form -->
-        <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
-            <div class="form-group">
-                <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" required>
-            </div>
-            <div class="form-group">
-                <label for="signupPassword">Password</label>
-                <div class="password-input-container">
-                    <input type="password" id="signupPassword" required minlength="8">
-                    <button type="button" class="password-toggle" onclick="togglePassword('signupPassword')" title="Show password">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="signupConfirmPassword">Confirm Password</label>
-                <div class="password-input-container">
-                    <input type="password" id="signupConfirmPassword" required minlength="8">
-                    <button type="button" class="password-toggle" onclick="togglePassword('signupConfirmPassword')" title="Show password">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <!-- Honeypot: hidden from people, filled in by simple bots -->
-            <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
-            <button type="submit" class="auth-button" id="signupButton">Sign Up</button>
-            <div id="signupError" class="error-message"></div>
-            <div id="signupSuccess" class="success-message"></div>
-        </form>
-
-        <div class="guest-mode-option">
-            <p>or</p>
-            <button type="button" class="guest-mode-btn" onclick="startGuestMode()">Continue as Guest</button>
-            <p class="guest-mode-note">No account needed — data saves locally in your browser</p>
-        </div>
-    </div>
-
-    <!-- Main App Container -->
-    <div class="container hidden" id="appContainer">
-        <!-- App Header -->
-        <div class="app-header">
-            <!-- Storage Toggle -->
-            <div class="storage-toggle">
-                <span class="toggle-label" id="localLabel">Save Locally</span>
-                <label class="toggle-container">
-                    <input type="checkbox" class="toggle-input" id="storageToggle" onchange="handleStorageToggle()">
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="toggle-label" id="cloudLabel">Save to Account</span>
-            </div>
-            
-            <!-- Header Actions -->
-            <div class="header-actions">
-                <button class="clear-data-btn" onclick="clearAllData()">Clear Data</button>
-                <button class="login-btn" id="authButton" onclick="handleAuthAction()">Login</button>
-            </div>
-        </div>
-        
-        <div class="title-block">
-            <div class="hero-art" aria-hidden="true"></div>
-            <h1 id="partyTitle" class="editable-title" onclick="editPartyTitle()">Party Time <span class="title-accent">Meow!</span></h1>
-            <div class="hero-art-alt" aria-hidden="true"></div>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('rsvp')">RSVP Tracker</button>
-            <button class="tab" onclick="switchTab('todo')">Todo List</button>
-            <button class="tab" onclick="switchTab('shopping')">Shopping List</button>
-        </div>
-        
-        <div class="tab-content active" id="rsvp">
-            <div class="add-guest">
-                <input type="text" id="guestName" placeholder="Enter guest name..." onkeydown="if(event.key==='Enter') {event.preventDefault(); addGuest(); return false;}" />
-                <button type="button" onclick="addGuest()">Add Guest</button>
-            </div>
-
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-number" id="totalGuests">0</div>
-                    <div class="stat-label">Total Invited</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="yesCount">0</div>
-                    <div class="stat-label">Coming</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="noCount">0</div>
-                    <div class="stat-label">Not Coming</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="pendingCount">0</div>
-                    <div class="stat-label">Pending</div>
-                </div>
-            </div>
-
-            <div class="guest-list" id="guestList">
-                <div class="empty-state">
-                    <p>No guests added yet. Start by adding some names above!</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="todo">
-            <div class="add-todo">
-                <input type="text" id="todoInput" placeholder="Add party tasks (food, decorations, etc.)..." onkeydown="if(event.key==='Enter') {event.preventDefault(); addTodo(); return false;}" />
-                <button type="button" onclick="addTodo()">Add Task</button>
-            </div>
-
-            <div class="todo-stats">
-                <div class="stat">
-                    <div class="stat-number" id="totalTodos">0</div>
-                    <div class="stat-label">Total Tasks</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="completedTodos">0</div>
-                    <div class="stat-label">Completed</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="pendingTodos">0</div>
-                    <div class="stat-label">Pending</div>
-                </div>
-            </div>
-
-            <div class="todo-list" id="todoList">
-                <div class="empty-state">
-                    <p>No tasks added yet. Start by adding some party preparation tasks!</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="shopping">
-            <div class="add-shopping-item">
-                <input type="text" id="shoppingItem" placeholder="Enter item (balloons, cake, drinks)..." onkeydown="if(event.key==='Enter') {event.preventDefault(); addShoppingItem(); return false;}" />
-                <button type="button" onclick="addShoppingItem()">Add Item</button>
-            </div>
-
-            <div class="shopping-stats">
-                <div class="stat">
-                    <div class="stat-number" id="totalItems">0</div>
-                    <div class="stat-label">Total Items</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="boughtItems">0</div>
-                    <div class="stat-label">Bought</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="pendingItems">0</div>
-                    <div class="stat-label">Still Need</div>
-                </div>
-            </div>
-
-            <div class="shopping-list" id="shoppingList">
-                <div class="empty-state">
-                    <p>No items added yet. Start by adding some party supplies!</p>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Custom Confirmation Modal -->
-    <div id="confirmModal" class="modal hidden">
-        <div class="modal-backdrop" onclick="hideConfirmModal()"></div>
-        <div class="modal-content">
-            <h2>Clear Data</h2>
-            <p>Are you sure you want to reset your party space?</p>
-            <div class="modal-warning">
-                <p>This will permanently delete:</p>
-                <ul>
-                    <li>All guests and their RSVP status</li>
-                    <li>All todo items</li>
-                    <li>All shopping list items</li>
-                </ul>
-                <p><strong>This action cannot be undone!</strong></p>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn modal-cancel" onclick="hideConfirmModal()">Cancel</button>
-                <button class="modal-btn modal-confirm" onclick="confirmClearData()">Clear Data</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Upgrade Modal -->
-    <div id="upgradeModal" class="modal hidden">
-        <div class="modal-backdrop" onclick="hideUpgradeModal()"></div>
-        <div class="modal-content">
-            <h2>Save to Account</h2>
-            <p>An account means you can access your party space and data across multiple devices. Without an account, data is stored locally in your browser. It will persist between sessions, but would be lost if you clear your cache.</p>
-            <div class="modal-buttons">
-                <button class="modal-btn modal-cancel" onclick="hideUpgradeModal()">Maybe Later</button>
-                <button class="modal-btn modal-confirm" onclick="startUpgrade()">Create Account</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Theme switcher -->
-    <button type="button" class="theme-toggle" onclick="cycleTheme()" title="Change theme" aria-label="Change theme">
-        <span class="theme-toggle-icon" aria-hidden="true"></span>
-    </button>
-
+    <title>Party Cat – Free Party Planner: RSVP Tracker, To-Do & Shopping List</title>
+    <meta name="description" content="Party Cat is a free party planner. Track RSVPs with automatic headcounts, plus your to-do and shopping lists, all in one place. No sign-up needed.">
+    <link rel="canonical" href="https://partycat.app/">
     <script>
-        // Call the Party Cat API (api/index.php). Sends a JSON body as POST when one is given.
-        // Login state travels in an HttpOnly session cookie, so no token handling is needed here.
-        async function api(action, body = null, params = {}) {
-            const query = new URLSearchParams({ action, ...params });
-            const response = await fetch(`api/?${query}`, body ? {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            } : {});
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) {
-                throw new Error(data.error || `Request failed (${response.status})`);
-            }
-            return data;
-        }
-
-        // Escape user-entered text before inserting it into HTML
-        function escapeHtml(text) {
-            return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-        }
-
-        // Guest mode data persistence functions
-        function saveGuestsToStorage() {
-            if (isGuestMode) {
-                localStorage.setItem('partyGuests', JSON.stringify(guests));
-            }
-        }
-
-        function saveTodosToStorage() {
-            if (isGuestMode) {
-                localStorage.setItem('partyTodos', JSON.stringify(todos));
-            }
-        }
-
-        // Anonymous visit counting: a random ID kept in this browser, sent when someone uses the app.
-        // The server counts it as a guest or account visit depending on whether you're logged in.
-        function getVisitorId() {
+        // Returning users skip straight to the app. Crawlers and first-time visitors have none
+        // of these, so they see this page. ?home shows it anyway; old ?reset= links get forwarded.
+        (function () {
             try {
-                let visitorId = localStorage.getItem('partycat-visitor');
-                if (!visitorId) {
-                    visitorId = crypto.randomUUID();
-                    localStorage.setItem('partycat-visitor', visitorId);
+                var q = location.search;
+                var returning = ['partycat-visitor', 'partyGuests', 'partyTodos', 'partyShoppingItems']
+                    .some(function (key) { return localStorage.getItem(key); });
+                if (/[?&]reset=/.test(q) || (returning && !/[?&]home\b/.test(q))) {
+                    location.replace('/dashboard' + q);
                 }
-                return visitorId;
-            } catch (e) {
-                return null;
-            }
-        }
-
-        async function recordVisit() {
-            const visitorId = getVisitorId();
-            if (!visitorId) return;
-            try {
-                await api('visit', { visitor_id: visitorId });
-            } catch (e) {
-                // Visit counting must never get in the way of the app
-                console.debug('Visit not recorded:', e);
-            }
-        }
-
-        // Guests only count once they click or type something, so bots and people who just glance
-        // at the page aren't counted. (Logged-in users count straight away: a session means a person.)
-        let waitingForInteraction = false;
-        function recordVisitOnInteraction() {
-            if (waitingForInteraction) return;
-            waitingForInteraction = true;
-            const record = event => {
-                if (!event.isTrusted) return;
-                document.removeEventListener('click', record, true);
-                document.removeEventListener('keydown', record, true);
-                waitingForInteraction = false;
-                recordVisit();
-            };
-            document.addEventListener('click', record, true);
-            document.addEventListener('keydown', record, true);
-        }
-
-        // Authentication state
-        let currentUser = null;
-        let currentParty = null;
-        let isGuestMode = true;
-
-        // Authentication functions
-        async function checkAuth() {
-            try {
-                const { user } = await api('session');
-                if (user) {
-                    currentUser = user;
-                    return true;
-                }
-                return false;
-            } catch (e) {
-                console.error('Auth check failed:', e);
-                return false;
-            }
-        }
-
-        async function signUp(email, password, website) {
-            try {
-                const { user } = await api('signup', { email, password, website });
-                currentUser = user;
-                return { success: true, user };
-            } catch (e) {
-                console.error('Error signing up:', e);
-                return { success: false, error: e.message };
-            }
-        }
-
-        async function signIn(email, password) {
-            try {
-                const { user } = await api('login', { email, password });
-                currentUser = user;
-                return { success: true, user };
-            } catch (e) {
-                console.error('Error signing in:', e);
-                return { success: false, error: e.message };
-            }
-        }
-
-        async function signOut() {
-            try {
-                await api('logout', {});
-            } catch (e) {
-                // Even if the request fails, clear local state and treat it as a successful logout
-                console.error('Error signing out:', e);
-            }
-            currentUser = null;
-            currentParty = null;
-            isGuestMode = true;
-            return true;
-        }
-
-        // Authentication UI handlers
-        function clearAuthMessages() {
-            document.getElementById('loginError').textContent = '';
-            document.getElementById('signupError').textContent = '';
-            document.getElementById('signupSuccess').textContent = '';
-            document.getElementById('forgotError').textContent = '';
-            document.getElementById('forgotSuccess').textContent = '';
-        }
-        
-        function switchAuthTab(tab) {
-            // Clear any error messages
-            clearAuthMessages();
-            
-            // Make sure auth tabs are visible
-            document.querySelector('.auth-tabs').style.display = 'flex';
-            
-            // Update tab appearance
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            
-            if (tab === 'login') {
-                document.querySelector('.auth-tab').classList.add('active');
-                document.getElementById('loginForm').classList.add('active');
-            } else {
-                document.querySelectorAll('.auth-tab')[1].classList.add('active');
-                document.getElementById('signupForm').classList.add('active');
-            }
-        }
-
-        function togglePassword(inputId) {
-            const passwordInput = document.getElementById(inputId);
-            const toggleButton = passwordInput.nextElementSibling;
-            
-            const visibilityIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-            </svg>`;
-            
-            const visibilityOffIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-            </svg>`;
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleButton.innerHTML = visibilityOffIcon;
-                toggleButton.title = 'Hide password';
-            } else {
-                passwordInput.type = 'password';
-                toggleButton.innerHTML = visibilityIcon;
-                toggleButton.title = 'Show password';
-            }
-        }
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const loginButton = document.getElementById('loginButton');
-            const errorDiv = document.getElementById('loginError');
-            
-            loginButton.disabled = true;
-            loginButton.textContent = 'Logging in...';
-            errorDiv.textContent = '';
-            
-            const result = await signIn(email, password);
-            
-            if (result.success) {
-                await initializeApp();
-            } else {
-                errorDiv.textContent = result.error;
-            }
-            
-            loginButton.disabled = false;
-            loginButton.textContent = 'Login';
-        }
-
-        async function handleSignup(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirmPassword = document.getElementById('signupConfirmPassword').value;
-            const signupButton = document.getElementById('signupButton');
-            const errorDiv = document.getElementById('signupError');
-            const successDiv = document.getElementById('signupSuccess');
-            
-            errorDiv.textContent = '';
-            successDiv.textContent = '';
-            
-            if (password !== confirmPassword) {
-                errorDiv.textContent = 'Passwords do not match';
-                return;
-            }
-            
-            signupButton.disabled = true;
-            signupButton.textContent = 'Signing up...';
-            
-            const website = document.querySelector('#signupForm .hp-field').value;
-            const result = await signUp(email, password, website);
-            
-            if (result.success) {
-                // The server creates the new user's party and logs them straight in
-                document.getElementById('signupForm').reset();
-                await initializeApp();
-            } else {
-                errorDiv.textContent = result.error;
-            }
-            
-            signupButton.disabled = false;
-            signupButton.textContent = 'Sign Up';
-        }
-
-        // Forgot password functions
-        function showForgotPassword() {
-            // Clear any error messages
-            clearAuthMessages();
-            
-            // Hide all forms and show forgot password form
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            document.getElementById('forgotPasswordForm').classList.add('active');
-            
-            // Hide auth tabs when in forgot password mode
-            document.querySelector('.auth-tabs').style.display = 'none';
-        }
-
-        function showLogin() {
-            // Clear any error messages
-            clearAuthMessages();
-            
-            // Show auth tabs again
-            document.querySelector('.auth-tabs').style.display = 'flex';
-            
-            // Switch back to login tab
-            switchAuthTab('login');
-        }
-
-        async function handleForgotPassword(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('resetEmail').value;
-            const resetButton = document.getElementById('resetButton');
-            const errorDiv = document.getElementById('forgotError');
-            const successDiv = document.getElementById('forgotSuccess');
-            
-            resetButton.disabled = true;
-            resetButton.textContent = 'Sending...';
-            errorDiv.textContent = '';
-            successDiv.textContent = '';
-            
-            try {
-                const website = document.querySelector('#forgotPasswordForm .hp-field').value;
-                await api('forgot_password', { email, website });
-                successDiv.textContent = 'If that email has an account, a reset link is on its way. Check your inbox.';
-                document.getElementById('forgotPasswordForm').reset();
-
-                // Automatically go back to login after 3 seconds
-                setTimeout(() => {
-                    showLogin();
-                }, 3000);
-            } catch (err) {
-                errorDiv.textContent = err.message || 'Failed to send reset email. Please try again.';
-            }
-
-            resetButton.disabled = false;
-            resetButton.textContent = 'Send Reset Link';
-        }
-
-        async function handleResetPassword(event) {
-            event.preventDefault();
-
-            const password = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmNewPassword').value;
-            const button = document.getElementById('resetPasswordButton');
-            const errorDiv = document.getElementById('resetPasswordError');
-            const token = new URLSearchParams(window.location.search).get('reset');
-
-            errorDiv.textContent = '';
-
-            if (password !== confirmPassword) {
-                errorDiv.textContent = 'Passwords do not match';
-                return;
-            }
-
-            button.disabled = true;
-            button.textContent = 'Saving...';
-
-            try {
-                const { user } = await api('reset_password', { token, password });
-                currentUser = user;
-                // Drop the used token from the address bar
-                history.replaceState(null, '', window.location.pathname);
-                document.getElementById('resetPasswordForm').reset();
-                await initializeApp();
-            } catch (err) {
-                errorDiv.textContent = err.message;
-            }
-
-            button.disabled = false;
-            button.textContent = 'Set New Password';
-        }
-
-        function clearAllData() {
-            if (!currentParty) {
-                alert('No party found');
-                return;
-            }
-
-            // Show custom confirmation modal
-            showConfirmModal();
-        }
-
-        function showConfirmModal() {
-            document.getElementById('confirmModal').classList.remove('hidden');
-        }
-
-        function hideConfirmModal() {
-            document.getElementById('confirmModal').classList.add('hidden');
-        }
-
-        function showUpgradeModal() {
-            document.getElementById('upgradeModal').classList.remove('hidden');
-        }
-
-        function hideUpgradeModal() {
-            document.getElementById('upgradeModal').classList.add('hidden');
-        }
-
-        function startUpgrade() {
-            hideUpgradeModal();
-            // Switch to signup tab and show auth container
-            switchAuthTab('signup');
-            showAuthContainer();
-        }
-
-        async function confirmClearData() {
-            hideConfirmModal();
-
-            if (isGuestMode) {
-                // Guest mode: clear localStorage
-                guests = [];
-                todos = [];
-                shoppingItems = [];
-                currentParty.name = 'Party Time Meow!';
-                
-                // Clear localStorage
-                localStorage.removeItem('partyGuests');
-                localStorage.removeItem('partyTodos');
-                localStorage.removeItem('partyShoppingItems');
-                
-                // Update UI
-                updatePartyTitle();
-                renderGuests();
-                renderTodos();
-                renderShoppingItems();
-                
-            } else {
-                // Cloud mode: delete the party's guests, todos and shopping items and reset its title
-                try {
-                    const { party } = await api('clear_party', {});
-
-                    // Clear local arrays
-                    guests = [];
-                    todos = [];
-                    shoppingItems = [];
-
-                    // Update party title in current object and UI
-                    currentParty = party;
-                    updatePartyTitle();
-
-                    // Update UI
-                    renderGuests();
-                    renderTodos();
-                    renderShoppingItems();
-
-                } catch (e) {
-                    console.error('Error clearing data:', e);
-                    alert('Failed to clear data. Please try again.');
-                }
-            }
-        }
-
-        async function handleLogout() {
-            const success = await signOut();
-            if (success) {
-                await initializeGuestMode();
-                showAuthContainer();
-            }
-        }
-
-        function showAuthContainer() {
-            document.getElementById('authContainer').classList.remove('hidden');
-            document.getElementById('appContainer').classList.add('hidden');
-        }
-
-        function showAppContainer() {
-            document.getElementById('authContainer').classList.add('hidden');
-            document.getElementById('appContainer').classList.remove('hidden');
-            
-            // Update header based on authentication state
-            updateHeaderState();
-        }
-
-        function updateHeaderState() {
-            const toggle = document.getElementById('storageToggle');
-            const localLabel = document.getElementById('localLabel');
-            const cloudLabel = document.getElementById('cloudLabel');
-            const authButton = document.getElementById('authButton');
-            
-            if (isGuestMode) {
-                // Guest mode - toggle is off (Save Locally active)
-                toggle.checked = false;
-                localLabel.classList.remove('inactive');
-                cloudLabel.classList.add('inactive');
-                authButton.textContent = 'Login';
-                authButton.onclick = () => showAuthContainer();
-            } else {
-                // Authenticated mode - toggle is on (Save to Account active)
-                toggle.checked = true;
-                localLabel.classList.add('inactive');
-                cloudLabel.classList.remove('inactive');
-                authButton.textContent = 'Logout';
-                authButton.onclick = () => handleLogout();
-            }
-        }
-
-        function handleStorageToggle() {
-            const toggle = document.getElementById('storageToggle');
-            
-            if (toggle.checked && isGuestMode) {
-                // User wants to switch to cloud storage
-                showUpgradeModal();
-                // Reset toggle since we haven't actually switched yet
-                toggle.checked = false;
-            } else if (!toggle.checked && !isGuestMode) {
-                // User wants to logout and go to guest mode
-                handleLogout();
-            }
-        }
-
-        function handleAuthAction() {
-            if (isGuestMode) {
-                showAuthContainer();
-            } else {
-                handleLogout();
-            }
-        }
-
-        async function initializeApp() {
-            
-            if (!currentUser) {
-                console.error('No currentUser in initializeApp');
-                return;
-            }
-            
-            isGuestMode = false;
-            showAppContainer();
-            
-            // Load the user's party
-            await loadUserParty();
-            
-            // Initialize the app with the current party
-            await loadPartyData();
-
-            // Count this visit
-            recordVisit();
-        }
-
-        async function loadUserParty() {
-            if (!currentUser) {
-                console.error('No current user found');
-                return;
-            }
-            
-            try {
-                // The server returns the user's party, creating one if they have none
-                const { party } = await api('party');
-                currentParty = party;
-                updatePartyTitle();
-            } catch (e) {
-                console.error('Error in loadUserParty:', e);
-                alert('Failed to load party. Please try again.');
-            }
-        }
-
-
-        function updatePartyTitle() {
-            const titleElement = document.getElementById('partyTitle');
-            titleElement.innerHTML = decoratePartyTitle(currentParty.name);
-        }
-
-        // Wrap the last word so themes can give it their accent style
-        // (a one-word title stays plain).
-        function decoratePartyTitle(name) {
-            const html = escapeHtml(name);
-            return html.replace(/(\s)(\S+)$/, '$1<span class="title-accent">$2</span>');
-        }
-
-        function editPartyTitle() {
-            if (!currentParty) {
-                alert('Please create a party first');
-                return;
-            }
-
-            const titleElement = document.getElementById('partyTitle');
-            const currentTitle = currentParty.name;
-            
-            // Create input field that includes the full title
-            titleElement.classList.add('editing');
-            titleElement.innerHTML = `<input type="text" class="title-input" value="${escapeHtml(currentTitle)}" onblur="savePartyTitle(this)" onkeypress="handleTitleKeypress(event, this)" autofocus>`;
-            
-            // Focus and select the text
-            const input = titleElement.querySelector('.title-input');
-            input.focus();
-            input.select();
-        }
-
-        function handleTitleKeypress(event, input) {
-            if (event.key === 'Enter') {
-                input.blur(); // This will trigger savePartyTitle
-            }
-            if (event.key === 'Escape') {
-                cancelTitleEdit();
-            }
-        }
-
-        function cancelTitleEdit() {
-            const titleElement = document.getElementById('partyTitle');
-            titleElement.classList.remove('editing');
-            updatePartyTitle();
-        }
-
-        async function savePartyTitle(input) {
-            const newTitle = input.value.trim();
-            
-            if (!newTitle) {
-                alert('Party title cannot be empty');
-                cancelTitleEdit();
-                return;
-            }
-            
-            if (newTitle === currentParty.name) {
-                // No change
-                cancelTitleEdit();
-                return;
-            }
-            
-            if (isGuestMode) {
-                // Guest mode: just update the local object
-                currentParty.name = newTitle;
-                const titleElement = document.getElementById('partyTitle');
-                titleElement.classList.remove('editing');
-                updatePartyTitle();
-            } else {
-                // Cloud mode: save to the server
-                try {
-                    await api('update_party', { name: newTitle });
-                    currentParty.name = newTitle;
-                    const titleElement = document.getElementById('partyTitle');
-                    titleElement.classList.remove('editing');
-                    updatePartyTitle();
-                } catch (e) {
-                    console.error('Error updating party name:', e);
-                    alert('Failed to update party name. Please try again.');
-                    cancelTitleEdit();
-                }
-            }
-        }
-
-
-        async function loadPartyData() {
-            if (!currentParty) return;
-            
-            // Load guests, todos, and shopping items from the server
-            await loadGuests();
-            await loadTodos();
-            await loadShoppingItems();
-        }
-
-        async function loadGuests() {
-            if (!currentParty) return;
-            
-            try {
-                const { items } = await api('items', null, { type: 'guests' });
-                guests = items;
-                renderGuests();
-            } catch (e) {
-                console.error('Error loading guests:', e);
-            }
-        }
-
-        async function loadTodos() {
-            if (!currentParty) return;
-            
-            try {
-                const { items } = await api('items', null, { type: 'todos' });
-                todos = items;
-                renderTodos();
-            } catch (e) {
-                console.error('Error loading todos:', e);
-            }
-        }
-        
-        // Data arrays for the current party
-        let guests = [];
-        let todos = [];
-        let shoppingItems = [];
-
-        function parseGuestCount(name) {
-            const connectingWords = ['and', '&', '+', 'with', 'plus'];
-            const familyWords = ['family', 'families'];
-            
-            const lowerName = name.toLowerCase();
-            
-            // Check for family keywords
-            if (familyWords.some(word => lowerName.includes(word))) {
-                return 4;
-            }
-            
-            // Check for commas first (simple comma-separated names like "Joe, Kate, Ben")
-            if (name.includes(',')) {
-                const commaSegments = name.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                return commaSegments.length;
-            }
-            
-            // Replace punctuation that clearly indicates multiple people
-            let text = name.replace(/[;&+]/g, ' and ');
-            
-            // Check if any connecting words are present (indicates multiple people)
-            const hasConnectingWords = connectingWords.some(word => {
-                if (word === '&') {
-                    // Special handling for & symbol - just check if it exists
-                    return name.includes('&');
-                }
-                // Escape special regex characters
-                const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const pattern = new RegExp('\\b' + escapedWord + '\\b', 'i');
-                return pattern.test(name);
-            });
-            
-            if (hasConnectingWords) {
-                // Split by connecting words and count distinct groups
-                let segments = text.toLowerCase();
-                connectingWords.forEach(word => {
-                    if (word === '&') {
-                        // Special handling for & symbol
-                        segments = segments.replace(/&/g, '|');
-                    } else {
-                        // Escape special regex characters
-                        const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                        segments = segments.replace(new RegExp('\\b' + escapedWord + '\\b', 'g'), '|');
-                    }
-                });
-                const groups = segments.split('|').filter(group => group.trim().length > 0);
-                return Math.max(1, groups.length);
-            }
-            
-            // No connecting words found - treat as single person (even if multiple words like "John Smith")
-            return 1;
-        }
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-        }
-
-        async function addTodo() {
-            const input = document.getElementById('todoInput');
-            const text = input.value.trim();
-            
-            if (text === '') {
-                alert('Please enter a task');
-                return;
-            }
-
-            const newTodo = {
-                party_id: currentParty.id,
-                text: text,
-                completed: false
-            };
-
-            if (isGuestMode) {
-                // Guest mode: add to localStorage
-                newTodo.id = Date.now(); // Simple ID for guest mode
-                todos.unshift(newTodo);
-                saveTodosToStorage();
-                input.value = '';
-                renderTodos();
-            } else {
-                // Cloud mode: save to the server
-                try {
-                    const { item } = await api('create_item', { type: 'todos', text: newTodo.text, completed: false });
-                    todos.unshift(item);
-                    input.value = '';
-                    renderTodos();
-                } catch (e) {
-                    console.error('Error adding todo:', e);
-                    alert('Failed to add task. Please try again.');
-                }
-            }
-        }
-
-        async function toggleTodo(todoId) {
-            const todo = todos.find(t => t.id == todoId);
-            if (todo) {
-                const newCompleted = !todo.completed;
-                
-                if (isGuestMode) {
-                    todo.completed = newCompleted;
-                    saveTodosToStorage();
-                    renderTodos();
-                } else {
-                    try {
-                        await api('update_item', { type: 'todos', id: todoId, completed: newCompleted });
-                        todo.completed = newCompleted;
-                        renderTodos();
-                    } catch (e) {
-                        console.error('Error toggling todo:', e);
-                        alert('Failed to update task. Please try again.');
-                    }
-                }
-            }
-        }
-
-        async function deleteTodo(todoId) {
-            if (confirm('Are you sure you want to delete this task?')) {
-                if (isGuestMode) {
-                    todos = todos.filter(t => t.id != todoId);
-                    saveTodosToStorage();
-                    renderTodos();
-                } else {
-                    try {
-                        await api('delete_item', { type: 'todos', id: todoId });
-                        todos = todos.filter(t => t.id !== todoId);
-                        renderTodos();
-                    } catch (e) {
-                        console.error('Error deleting todo:', e);
-                        alert('Failed to delete task. Please try again.');
-                    }
-                }
-            }
-        }
-
-        function renderTodos() {
-            const todoList = document.getElementById('todoList');
-            
-            if (todos.length === 0) {
-                todoList.innerHTML = '<div class="empty-state"><p>No tasks added yet. Start by adding some party preparation tasks!</p></div>';
-                updateTodoStats();
-                return;
-            }
-
-            todoList.innerHTML = todos.map(todo => `
-                <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                    <div class="todo-text">${escapeHtml(todo.text)}</div>
-                    <div class="todo-actions">
-                        <button class="btn ${todo.completed ? 'btn-pending' : 'btn-yes'}" onclick="toggleTodo('${todo.id}')">
-                            ${todo.completed ? 'Undo' : 'Done'}
-                        </button>
-                        <button class="btn btn-delete" onclick="deleteTodo('${todo.id}')">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-
-            updateTodoStats();
-        }
-
-        function updateTodoStats() {
-            const total = todos.length;
-            const completed = todos.filter(t => t.completed).length;
-            const pending = total - completed;
-
-            document.getElementById('totalTodos').textContent = total;
-            document.getElementById('completedTodos').textContent = completed;
-            document.getElementById('pendingTodos').textContent = pending;
-        }
-
-        // Shopping List Functions
-        function saveShoppingItemsToStorage() {
-            if (isGuestMode) {
-                localStorage.setItem('partyShoppingItems', JSON.stringify(shoppingItems));
-            }
-        }
-
-        async function loadShoppingItems() {
-            if (isGuestMode) {
-                const stored = localStorage.getItem('partyShoppingItems');
-                if (stored) {
-                    shoppingItems = JSON.parse(stored);
-                }
-                renderShoppingItems();
-            } else {
-                try {
-                    const { items } = await api('items', null, { type: 'shopping_items' });
-                    shoppingItems = items;
-                    renderShoppingItems();
-                } catch (e) {
-                    console.error('Error loading shopping items:', e);
-                    // Initialize empty and render on error
-                    shoppingItems = [];
-                    renderShoppingItems();
-                }
-            }
-        }
-
-        async function addShoppingItem() {
-            const itemInput = document.getElementById('shoppingItem');
-            const item = itemInput.value.trim();
-            
-            if (item === '') {
-                alert('Please enter an item');
-                return;
-            }
-
-            if (!currentParty) {
-                alert('No party selected. Please refresh the page and try again.');
-                return;
-            }
-
-            if (isGuestMode) {
-                shoppingItems.push({
-                    id: Date.now().toString(),
-                    text: item,
-                    bought: false,
-                    created_at: new Date().toISOString()
-                });
-                saveShoppingItemsToStorage();
-                renderShoppingItems();
-            } else {
-                try {
-                    const { item: savedItem } = await api('create_item', { type: 'shopping_items', text: item, bought: false });
-                    shoppingItems.push(savedItem);
-                    renderShoppingItems();
-                } catch (e) {
-                    console.error('Error adding shopping item:', e);
-                    alert('Failed to add item. Please try again.');
-                }
-            }
-
-            itemInput.value = '';
-        }
-
-        async function toggleShoppingItem(itemId) {
-            const item = shoppingItems.find(i => i.id == itemId);
-            if (item) {
-                const newBought = !item.bought;
-                
-                if (isGuestMode) {
-                    item.bought = newBought;
-                    saveShoppingItemsToStorage();
-                    renderShoppingItems();
-                } else {
-                    try {
-                        await api('update_item', { type: 'shopping_items', id: itemId, bought: newBought });
-                        item.bought = newBought;
-                        renderShoppingItems();
-                    } catch (e) {
-                        console.error('Error toggling shopping item:', e);
-                        alert('Failed to update item. Please try again.');
-                    }
-                }
-            }
-        }
-
-        async function deleteShoppingItem(itemId) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                if (isGuestMode) {
-                    shoppingItems = shoppingItems.filter(i => i.id != itemId);
-                    saveShoppingItemsToStorage();
-                    renderShoppingItems();
-                } else {
-                    try {
-                        await api('delete_item', { type: 'shopping_items', id: itemId });
-                        shoppingItems = shoppingItems.filter(i => i.id !== itemId);
-                        renderShoppingItems();
-                    } catch (e) {
-                        console.error('Error deleting shopping item:', e);
-                        alert('Failed to delete item. Please try again.');
-                    }
-                }
-            }
-        }
-
-        function renderShoppingItems() {
-            const shoppingList = document.getElementById('shoppingList');
-            
-            if (shoppingItems.length === 0) {
-                shoppingList.innerHTML = '<div class="empty-state"><p>No items added yet. Start by adding some party supplies!</p></div>';
-                updateShoppingStats();
-                return;
-            }
-
-            shoppingList.innerHTML = shoppingItems.map(item => `
-                <div class="shopping-item ${item.bought ? 'bought' : ''}">
-                    <div class="shopping-text">${escapeHtml(item.text)}</div>
-                    <div class="shopping-actions">
-                        <button class="btn ${item.bought ? 'btn-pending' : 'btn-yes'}" onclick="toggleShoppingItem('${item.id}')">
-                            ${item.bought ? 'Unbuy' : 'Bought'}
-                        </button>
-                        <button class="btn btn-delete" onclick="deleteShoppingItem('${item.id}')">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-
-            updateShoppingStats();
-        }
-
-        function updateShoppingStats() {
-            const total = shoppingItems.length;
-            const bought = shoppingItems.filter(i => i.bought).length;
-            const pending = total - bought;
-
-            document.getElementById('totalItems').textContent = total;
-            document.getElementById('boughtItems').textContent = bought;
-            document.getElementById('pendingItems').textContent = pending;
-        }
-
-        async function addGuest() {
-            const nameInput = document.getElementById('guestName');
-            const name = nameInput.value.trim();
-            
-            if (name === '') {
-                alert('Please enter a guest name');
-                return;
-            }
-
-            if (!currentParty) {
-                alert('No party selected. Please refresh the page and try again.');
-                return;
-            }
-
-            if (guests.some(guest => guest.name.toLowerCase() === name.toLowerCase())) {
-                alert('Guest already exists');
-                return;
-            }
-
-            const newGuest = {
-                party_id: currentParty.id,
-                name: name,
-                status: 'pending',
-                count: parseGuestCount(name)
-            };
-
-            if (isGuestMode) {
-                // Guest mode: add to localStorage
-                newGuest.id = Date.now(); // Simple ID for guest mode
-                guests.unshift(newGuest);
-                saveGuestsToStorage();
-                nameInput.value = '';
-                renderGuests();
-            } else {
-                // Cloud mode: save to the server
-                try {
-                    const { item } = await api('create_item', { type: 'guests', name: newGuest.name, status: newGuest.status, count: newGuest.count });
-                    guests.unshift(item);
-                    nameInput.value = '';
-                    renderGuests();
-                } catch (e) {
-                    console.error('Error adding guest:', e);
-                    alert(`Failed to add guest: ${e.message}`);
-                }
-            }
-        }
-
-        async function updateGuestStatus(guestId, status) {
-            const guest = guests.find(g => g.id == guestId);
-            if (!guest) return;
-            
-            if (isGuestMode) {
-                // Guest mode: update localStorage
-                guest.status = status;
-                saveGuestsToStorage();
-                renderGuests();
-            } else {
-                // Cloud mode: save to the server
-                try {
-                    await api('update_item', { type: 'guests', id: guestId, status: status });
-                    guest.status = status;
-                    renderGuests();
-                } catch (e) {
-                    console.error('Error updating guest status:', e);
-                    alert('Failed to update guest status. Please try again.');
-                }
-            }
-        }
-
-        async function deleteGuest(guestId) {
-            if (confirm('Are you sure you want to remove this guest?')) {
-                if (isGuestMode) {
-                    guests = guests.filter(g => g.id != guestId);
-                    saveGuestsToStorage();
-                    renderGuests();
-                } else {
-                    try {
-                        await api('delete_item', { type: 'guests', id: guestId });
-                        guests = guests.filter(g => g.id !== guestId);
-                        renderGuests();
-                    } catch (e) {
-                        console.error('Error deleting guest:', e);
-                        alert('Failed to delete guest. Please try again.');
-                    }
-                }
-            }
-        }
-
-        function renderGuests() {
-            const guestList = document.getElementById('guestList');
-            
-            if (guests.length === 0) {
-                guestList.innerHTML = '<div class="empty-state"><p>No guests added yet. Start by adding some names above!</p></div>';
-                updateStats();
-                return;
-            }
-
-            guestList.innerHTML = guests.map(guest => `
-                <div class="guest-item ${guest.status}">
-                    <div>
-                        <span class="guest-name">${escapeHtml(guest.name)}</span>
-                        <span class="guest-count">(${guest.count || parseGuestCount(guest.name)} ${(guest.count || parseGuestCount(guest.name)) === 1 ? 'person' : 'people'})</span>
-                        <span class="status-badge status-${guest.status}">${guest.status.charAt(0).toUpperCase() + guest.status.slice(1)}</span>
-                    </div>
-                    <div class="guest-actions">
-                        <button class="btn btn-yes" onclick="updateGuestStatus('${guest.id}', 'yes')">Yes</button>
-                        <button class="btn btn-no" onclick="updateGuestStatus('${guest.id}', 'no')">No</button>
-                        <button class="btn btn-pending" onclick="updateGuestStatus('${guest.id}', 'pending')">Pending</button>
-                        <button class="btn btn-delete" onclick="deleteGuest('${guest.id}')">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-
-            updateStats();
-        }
-
-        function updateStats() {
-            const total = guests.reduce((sum, guest) => sum + (guest.count || parseGuestCount(guest.name)), 0);
-            const yes = guests.filter(g => g.status === 'yes').reduce((sum, guest) => sum + (guest.count || parseGuestCount(guest.name)), 0);
-            const no = guests.filter(g => g.status === 'no').reduce((sum, guest) => sum + (guest.count || parseGuestCount(guest.name)), 0);
-            const pending = guests.filter(g => g.status === 'pending').reduce((sum, guest) => sum + (guest.count || parseGuestCount(guest.name)), 0);
-
-            document.getElementById('totalGuests').textContent = total;
-            document.getElementById('yesCount').textContent = yes;
-            document.getElementById('noCount').textContent = no;
-            document.getElementById('pendingCount').textContent = pending;
-        }
-
-        document.getElementById('guestName').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addGuest();
-            }
-        });
-
-        document.getElementById('todoInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addTodo();
-            }
-        });
-
-        // Handle password reset flow: emailed links open ?reset=<token>
-        function handlePasswordReset() {
-            if (!new URLSearchParams(window.location.search).has('reset')) {
-                return false;
-            }
-
-            clearAuthMessages();
-            document.getElementById('resetPasswordError').textContent = '';
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            document.getElementById('resetPasswordForm').classList.add('active');
-            document.querySelector('.auth-tabs').style.display = 'none';
-            showAuthContainer();
-            return true;
-        }
-
-        function startGuestMode() {
-            // Hide auth screen, show app in guest mode
-            isGuestMode = true;
-            initializeGuestMode();
-        }
-
-        // App initialization
-        async function initApp() {
-            // Check for password reset flow first
-            if (handlePasswordReset()) {
-                return; // Stop here if we're handling a password reset
-            }
-
-            // Check if user is already logged in
-            const isAuthenticated = await checkAuth();
-            if (isAuthenticated) {
-                isGuestMode = false;
-                await initializeApp();
-            } else {
-                // Start in guest mode by default
-                isGuestMode = true;
-                await initializeGuestMode();
-            }
-        }
-
-        // Guest mode initialization
-        async function initializeGuestMode() {
-            // Create a virtual party object for guest mode
-            currentParty = {
-                id: 'guest-party',
-                name: 'Party Time Meow!',
-                description: 'Guest mode party'
-            };
-            
-            isGuestMode = true;
-            
-            // Load data from localStorage
-            guests = JSON.parse(localStorage.getItem('partyGuests')) || [];
-            todos = JSON.parse(localStorage.getItem('partyTodos')) || [];
-            shoppingItems = JSON.parse(localStorage.getItem('partyShoppingItems')) || [];
-            
-            // Show the app interface
-            showAppContainer();
-            
-            // Update the title and render data
-            updatePartyTitle();
-            renderGuests();
-            renderTodos();
-            renderShoppingItems();
-            
-            // Count this visit (anonymously) once the guest interacts
-            recordVisitOnInteraction();
-        }
-
-        // Initialize modal state
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ensure modal starts hidden
-            document.getElementById('confirmModal').classList.add('hidden');
-        });
-
-        // Start the app
-        initApp();
+            } catch (e) {}
+        })();
     </script>
 
-    <!-- Footer -->
+    <meta name="theme-color" content="#1B1B3A">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.ico" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Party Cat">
+    <meta property="og:url" content="https://partycat.app/">
+    <meta property="og:title" content="Party Cat – Free Party Planner">
+    <meta property="og:description" content="Track RSVPs with automatic headcounts, plus your to-do and shopping lists, all in one place. Free, no sign-up needed.">
+    <meta property="og:image" content="https://partycat.app/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Party Cat: a cartoon cat in a party hat beside an RSVP list">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebApplication",
+                "@id": "https://partycat.app/#app",
+                "name": "Party Cat",
+                "url": "https://partycat.app/",
+                "description": "A free party planner with an RSVP tracker that counts heads automatically, a to-do list and a shopping list. Works without an account; an optional free account syncs across devices.",
+                "applicationCategory": "LifestyleApplication",
+                "operatingSystem": "Any (web browser)",
+                "browserRequirements": "Requires JavaScript",
+                "isAccessibleForFree": true,
+                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+                "featureList": [
+                    "RSVP tracker with Yes, No and Pending status",
+                    "Automatic headcount from guest names",
+                    "Party to-do list",
+                    "Party shopping list",
+                    "Works without an account",
+                    "Optional free account to sync across devices",
+                    "Four themes"
+                ],
+                "image": "https://partycat.app/og-image.png",
+                "author": { "@id": "https://partycat.app/#maeve" }
+            },
+            {
+                "@type": "Person",
+                "@id": "https://partycat.app/#maeve",
+                "name": "Maeve Lander",
+                "url": "https://maevelander.net",
+                "sameAs": ["https://github.com/maevelander"]
+            },
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    { "@type": "Question", "name": "Is Party Cat free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Party Cat is completely free, with no ads, paid tiers or limits on guests." } },
+                    { "@type": "Question", "name": "Do I need to create an account?", "acceptedAnswer": { "@type": "Answer", "text": "No. You can plan a whole party without signing up. An account is optional, and lets you open your party on more than one device." } },
+                    { "@type": "Question", "name": "Where is my party data stored?", "acceptedAnswer": { "@type": "Answer", "text": "Without an account, everything stays in your own browser. With an account, your party is saved to Party Cat's server and only you can see it. Party Cat never sells data or uses tracking cookies." } },
+                    { "@type": "Question", "name": "How does Party Cat count guests?", "acceptedAnswer": { "@type": "Answer", "text": "It reads the names you type. \"Sam & Alex\" counts as 2 people, \"Mateo, Ben, Ava\" as 3, and \"The Smiths family\" as 4, so your headcount is ready for catering." } },
+                    { "@type": "Question", "name": "Does it work on my phone?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Party Cat works in any modern browser on phones, tablets and computers. There's nothing to install." } },
+                    { "@type": "Question", "name": "Who made Party Cat?", "acceptedAnswer": { "@type": "Answer", "text": "Maeve Lander made Party Cat to plan family birthday parties. It's open source on GitHub." } }
+                ]
+            }
+        ]
+    }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="themes/confetti/theme.css">
+    <style>
+        /* Homepage styles, built on the Confetti tokens */
+        body.page-home { padding: 0 20px; }
+
+        .home-nav {
+            position: relative; z-index: 1;
+            max-width: 1080px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 22px 0;
+        }
+        .home-brand {
+            display: flex; align-items: center; gap: 10px;
+            color: #FFFFFF; font-weight: 800; font-size: 22px; text-decoration: none;
+        }
+        .home-brand span {
+            width: 40px; height: 40px;
+            background: url('themes/confetti/hero.svg') no-repeat center / contain;
+        }
+        .home-login {
+            color: #FFFFFF; font-weight: 700; text-decoration: underline; text-underline-offset: 3px;
+        }
+
+        .home-wrap { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; }
+
+        /* Hero */
+        .home-hero {
+            display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center;
+            padding: 40px 0 90px;
+        }
+        .home-hero h1 {
+            color: #FFFFFF; text-align: left;
+            font-size: 68px; line-height: 1.02;
+        }
+        .home-hero h1 .title-accent { margin-top: 10px; }
+        .home-lede {
+            color: #FFFFFF; font-size: 21px; line-height: 1.45;
+            margin: 26px 0 32px; max-width: 30em; opacity: .92;
+        }
+        .home-ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+        .home-cta {
+            display: inline-flex; align-items: center; height: 60px; padding: 0 30px;
+            background: var(--accent); color: var(--accent-ink);
+            border: var(--accent-border); border-radius: var(--control-radius);
+            box-shadow: 4px 4px 0 #FFFFFF;
+            font-size: 19px; font-weight: 800; text-decoration: none;
+        }
+        .home-cta:hover { background: var(--accent-hover); }
+        .home-cta-note { color: #FFFFFF; font-size: 15px; opacity: .8; }
+
+        /* App preview card */
+        .preview {
+            position: relative;
+            background: var(--card); border: var(--card-border);
+            border-radius: var(--card-radius); box-shadow: var(--card-shadow);
+            padding: 26px 24px 24px; transform: rotate(1.5deg);
+        }
+        .preview::before, .preview::after {
+            content: ""; position: absolute; top: -48px; width: 76px; height: 56px;
+            background: url('themes/confetti/ear.svg') no-repeat center bottom / contain;
+        }
+        .preview::before { left: 36px; }
+        .preview::after { right: 36px; }
+        .preview-title { font-weight: 800; font-size: 26px; text-align: center; margin-bottom: 16px; }
+        .preview-title b {
+            display: inline-block; background: #FFC93C; border: 3px solid #1B1B3A; border-radius: 10px;
+            box-shadow: 3px 3px 0 #1B1B3A; padding: 0 8px 3px; transform: rotate(-3deg);
+        }
+        .preview-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+        .preview-stat {
+            border: 2px solid #1B1B3A; border-radius: 14px; padding: 8px 10px;
+            font-size: 12px; font-weight: 600; line-height: 1.2;
+        }
+        .preview-stat strong { display: block; font-size: 24px; font-weight: 800; }
+        .preview-stat:nth-child(1) { background: #1B1B3A; color: #FFFFFF; transform: rotate(-1.5deg); }
+        .preview-stat:nth-child(2) { background: #2F4BFF; color: #FFFFFF; transform: rotate(1deg); }
+        .preview-stat:nth-child(3) { background: #FF4F8B; transform: rotate(-1deg); }
+        .preview-stat:nth-child(4) { background: #FFFFFF; border-style: dashed; transform: rotate(1.5deg); }
+        .preview-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            border: 2px solid #1B1B3A; border-radius: 14px; padding: 9px 12px; margin-top: 8px;
+            font-weight: 600;
+        }
+        .preview-row small { font-weight: 500; color: var(--muted); }
+        .preview-row.yes { background: #E8EDFF; }
+        .preview-row.no { background: #FFE3EC; }
+        .pill {
+            flex: none; font-size: 12px; font-weight: 700; padding: 2px 10px;
+            border: 2px solid #1B1B3A; border-radius: 999px;
+        }
+        .yes .pill { background: #2F4BFF; color: #FFFFFF; }
+        .no .pill { background: #FF4F8B; }
+        .pending .pill { background: #FFFFFF; border-style: dashed; }
+
+        .hero-cat {
+            position: absolute; left: -80px; bottom: -70px; width: 130px; height: 122px;
+            background: url('themes/confetti/cat-cake.svg') no-repeat center / contain;
+            transform: rotate(-4deg);
+        }
+
+        /* Sections on white cards */
+        .home-section {
+            background: var(--card); border: var(--card-border);
+            border-radius: var(--card-radius); box-shadow: var(--card-shadow);
+            padding: 44px 48px 48px; margin-bottom: 70px;
+        }
+        .home-section h2 {
+            font-family: var(--font-display); font-size: 40px; font-weight: 800;
+            letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 10px;
+        }
+        .home-section > p.section-lede { font-size: 18px; color: var(--muted); margin-bottom: 30px; max-width: 36em; }
+
+        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .feature {
+            border: 2px solid #1B1B3A; border-radius: 20px; padding: 22px 22px 24px;
+        }
+        .feature:nth-child(6n+1) { background: #E8EDFF; transform: rotate(-1deg); }
+        .feature:nth-child(6n+2) { background: #FFF4D6; transform: rotate(.8deg); }
+        .feature:nth-child(6n+3) { background: #FFE3EC; transform: rotate(-.6deg); }
+        .feature:nth-child(6n+4) { background: #FFFFFF; border-style: dashed; transform: rotate(.6deg); }
+        .feature:nth-child(6n+5) { background: #E8EDFF; transform: rotate(-.8deg); }
+        .feature:nth-child(6n+6) { background: #FFF4D6; transform: rotate(1deg); }
+        .feature h3 { font-size: 21px; font-weight: 800; margin-bottom: 6px; line-height: 1.2; }
+        .feature p { font-size: 16px; color: var(--ink); }
+        .feature-icon { font-size: 30px; line-height: 1; margin-bottom: 10px; display: block; }
+
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: step; }
+        .step { position: relative; padding-top: 64px; }
+        .step::before {
+            counter-increment: step; content: counter(step);
+            position: absolute; top: 0; left: 0; width: 48px; height: 48px;
+            display: grid; place-items: center;
+            background: #FFC93C; border: 2px solid #1B1B3A; border-radius: 50%;
+            box-shadow: 3px 3px 0 #1B1B3A; font-weight: 800; font-size: 22px;
+        }
+        .step h3 { font-size: 21px; font-weight: 800; margin-bottom: 6px; }
+        .step p { font-size: 16px; }
+
+        .faq details {
+            border: 2px solid #1B1B3A; border-radius: 18px; margin-bottom: 12px; background: #FFFFFF;
+        }
+        .faq details[open] { background: #FFF4D6; }
+        .faq summary {
+            cursor: pointer; list-style: none; padding: 18px 56px 18px 22px; position: relative;
+            font-size: 19px; font-weight: 700;
+        }
+        .faq summary::-webkit-details-marker { display: none; }
+        .faq summary::after {
+            content: "+"; position: absolute; right: 22px; top: 50%; transform: translateY(-50%);
+            font-size: 28px; font-weight: 800;
+        }
+        .faq details[open] summary::after { content: "–"; }
+        .faq details p { padding: 0 22px 20px; font-size: 17px; max-width: 42em; }
+        .faq a { color: var(--link); font-weight: 700; }
+
+        .home-final { text-align: center; padding: 10px 0 30px; color: #FFFFFF; }
+        .home-final h2 { font-size: 44px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+        .home-final p { font-size: 19px; margin-bottom: 28px; opacity: .9; }
+        .final-cats { display: flex; justify-content: center; gap: 30px; margin-top: 40px; }
+        .final-cats span { width: 120px; height: 120px; background: no-repeat center bottom / contain; }
+        .final-cats span:nth-child(1) { background-image: url('themes/confetti/cat-balloon.svg'); height: 160px; }
+        .final-cats span:nth-child(2) { background-image: url('themes/confetti/cat-gift.svg'); }
+        .final-cats span:nth-child(3) { background-image: url('themes/confetti/cat-blower.svg'); width: 150px; }
+
+
+        @media (max-width: 900px) {
+            .home-hero { grid-template-columns: 1fr; gap: 70px; padding: 20px 0 60px; }
+            .hero-cat { display: none; }
+            .features { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            body.page-home { padding: 0 16px; }
+            .home-hero h1 { font-size: 44px; }
+            .home-lede { font-size: 18px; }
+            .home-cta { width: 100%; justify-content: center; }
+            .preview { transform: none; padding: 22px 14px 16px; }
+            .preview-stats { grid-template-columns: 1fr 1fr; }
+            .home-section { padding: 30px 20px 32px; margin-bottom: 50px; }
+            .home-section h2, .home-final h2 { font-size: 30px; }
+            .features, .steps { grid-template-columns: 1fr; }
+            .step { padding-top: 0; padding-left: 64px; min-height: 48px; }
+            .faq summary { font-size: 17px; }
+            .final-cats span { width: 80px; height: 80px; }
+            .final-cats span:nth-child(1) { height: 110px; }
+            .final-cats span:nth-child(3) { width: 100px; }
+        }
+    </style>
+</head>
+<body class="page-home">
+    <div class="theme-art" aria-hidden="true"><div class="theme-art-frame"></div></div>
+
+    <header class="home-nav">
+        <a href="/" class="home-brand"><span aria-hidden="true"></span>Party Cat</a>
+        <a href="/dashboard" class="home-login">Log in</a>
+    </header>
+
+    <main class="home-wrap">
+        <!-- Hero -->
+        <section class="home-hero">
+            <div>
+                <h1>Party planning, <span class="title-accent">sorted.</span></h1>
+                <p class="home-lede">Party Cat is a free party planner that keeps your RSVPs, to-do list and shopping list in one place, with a live headcount of who's coming. Purrrfect.</p>
+                <div class="home-ctas">
+                    <a href="/dashboard" class="home-cta">Start planning, it's free</a>
+                    <span class="home-cta-note">No sign-up needed.</span>
+                </div>
+            </div>
+
+            <div class="preview" aria-label="Preview of the Party Cat RSVP tracker">
+                <div class="hero-cat" aria-hidden="true"></div>
+                <div class="preview-title">Party Time <b>Meow!</b></div>
+                <div class="preview-stats">
+                    <div class="preview-stat"><strong>14</strong>Total invited</div>
+                    <div class="preview-stat"><strong>9</strong>Coming</div>
+                    <div class="preview-stat"><strong>2</strong>Not coming</div>
+                    <div class="preview-stat"><strong>3</strong>Pending</div>
+                </div>
+                <div class="preview-row yes"><span>The Nguyen family <small>(4 people)</small></span><span class="pill">Yes</span></div>
+                <div class="preview-row yes"><span>Kayla &amp; Susie <small>(2 people)</small></span><span class="pill">Yes</span></div>
+                <div class="preview-row pending"><span>Mateo, Ben, Ava <small>(3 people)</small></span><span class="pill">Pending</span></div>
+                <div class="preview-row no"><span>Robert <small>(1 person)</small></span><span class="pill">No</span></div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="home-section" id="features">
+            <h2>Everything for the party, in one purrrfect place</h2>
+            <p class="section-lede">I built Party Cat to plan my kids' birthday parties and ward off party cat-astrophes. It does the few things a party actually needs, and does them well.</p>
+            <div class="features">
+                <div class="feature">
+                    <span class="feature-icon" aria-hidden="true">💌</span>
+                    <h3>RSVP tracker</h3>
+                    <p>Mark each guest Yes, No or Pending and see who's coming at a glance.</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon" aria-hidden="true">🧮</span>
+                    <h3>Automatic headcount</h3>
+                    <p>Type "Sam &amp; Alex" or "The Smiths family" and Party Cat counts the people for you.</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon" aria-hidden="true">✅</span>
+                    <h3>To-do list</h3>
+                    <p>Book the venue, send the invites, hide the presents. Tick things off as you go.</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon" aria-hidden="true">🛒</span>
+                    <h3>Shopping list</h3>
+                    <p>Balloons, candles, snacks, catnip. Check items off in the shop, right on your phone.</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon" aria-hidden="true">🔒</span>
+                    <h3>No account needed</h3>
+                    <p>Start straight away. Your plans stay in your browser until you choose to save them.</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon" aria-hidden="true">🎨</span>
+                    <h3>Four pawsome themes</h3>
+                    <p>Confetti, Astro Cat, Loose Thread or Calm Cat. Tap the cat to switch.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section class="home-section" id="how">
+            <h2>How it works</h2>
+            <p class="section-lede">From guest list to party day in three easy paw-steps.</p>
+            <div class="steps">
+                <div class="step">
+                    <h3>Name your party</h3>
+                    <p>Open Party Cat and give your party a title. No forms, no email.</p>
+                </div>
+                <div class="step">
+                    <h3>Add guests and lists</h3>
+                    <p>Add your guests, jobs and shopping. Update RSVPs as replies come in.</p>
+                </div>
+                <div class="step">
+                    <h3>Sync if you want</h3>
+                    <p>Create a free account to keep your party safe and open it on any device.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="home-section faq" id="faq">
+            <h2>Questions</h2>
+            <p class="section-lede">For the curious cats.</p>
+            <details open>
+                <summary>Is Party Cat free?</summary>
+                <p>Yes. Party Cat is completely free, with no ads, paid tiers or limits on guests.</p>
+            </details>
+            <details>
+                <summary>Do I need to create an account?</summary>
+                <p>No. You can plan a whole party without signing up. An account is optional, and lets you open your party on more than one device.</p>
+            </details>
+            <details>
+                <summary>Where is my party data stored?</summary>
+                <p>Without an account, everything stays in your own browser. With an account, your party is saved to Party Cat's server and only you can see it. I never sell data or use tracking cookies.</p>
+            </details>
+            <details>
+                <summary>How does Party Cat count guests?</summary>
+                <p>It reads the names you type. "Sam &amp; Alex" counts as 2 people, "Mateo, Ben, Ava" as 3, and "The Smiths family" as 4, so your headcount is ready for catering.</p>
+            </details>
+            <details>
+                <summary>Does it work on my phone?</summary>
+                <p>Yes. Party Cat works in any modern browser on phones, tablets and computers. There's nothing to install.</p>
+            </details>
+            <details>
+                <summary>Who made Party Cat?</summary>
+                <p>I'm <a href="https://maevelander.net">Maeve Lander</a>. I'm more list-lover than party animal, and I made this kitten-kaboodle for my kids' parties. It's open source on <a href="https://github.com/maevelander/partycat">GitHub</a>.</p>
+            </details>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="home-final">
+            <h2>Ready to paw-ty?</h2>
+            <p>Your guest list is just a whisker away.</p>
+            <a href="/dashboard" class="home-cta">Start planning, it's free</a>
+            <div class="final-cats" aria-hidden="true"><span></span><span></span><span></span></div>
+        </section>
+    </main>
+
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-love">
@@ -1491,6 +417,8 @@
                 <a href="about.html" class="footer-link">About</a>
                 <span class="footer-separator">•</span>
                 <a href="legal.html" class="footer-link">Legal</a>
+                <span class="footer-separator">•</span>
+                <a href="https://github.com/maevelander/partycat" class="footer-link">GitHub</a>
             </div>
         </div>
     </footer>

@@ -38,7 +38,7 @@ For local development, you can also add an `api/config.local.php` (same format, 
 
 ### 3. Run the Application
 ```bash
-php -S localhost:8000
+php -S localhost:8000 dev-router.php
 open http://localhost:8000
 ```
 
@@ -80,10 +80,11 @@ How it works: the app keeps a random ID in the browser's `localStorage` and send
 
 partycat.app runs on shared PHP hosting. A deploy replaces the whole site, so upload all of these together:
 
-- `index.html`, `about.html`, `legal.html`, `analytics.html`, `style.css`, and the whole `themes/` folder
+- `index.html` (homepage), `dashboard.html` (the app, served at `/dashboard`), `about.html`, `legal.html`, `analytics.html`, `style.css`, and the whole `themes/` folder
+- `.htaccess`, `robots.txt`, `sitemap.xml`, `llms.txt`, `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `og-image.png`
 - `api/index.php`, `api/.htaccess`, `api/config.php`, `api/lib/PHPMailer/`
 
-Don't upload `api/config.local.php`, `schema.sql`, `CLAUDE.md` or other repo files. On the server, the app connects to MySQL at `127.0.0.1`.
+Don't upload `api/config.local.php`, `dev-router.php`, `schema.sql`, `CLAUDE.md` or other repo files. On the server, the app connects to MySQL at `127.0.0.1`.
 
 ## 🎨 Design Approach
 
