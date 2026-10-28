@@ -954,56 +954,21 @@
         let shoppingItems = [];
 
         function parseGuestCount(name) {
-            const connectingWords = ['and', '&', '+', 'with', 'plus'];
             const familyWords = ['family', 'families'];
-            
+
             const lowerName = name.toLowerCase();
-            
+
             // Check for family keywords
             if (familyWords.some(word => lowerName.includes(word))) {
                 return 4;
             }
-            
-            // Check for commas first (simple comma-separated names like "Joe, Kate, Ben")
-            if (name.includes(',')) {
-                const commaSegments = name.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                return commaSegments.length;
-            }
-            
-            // Replace punctuation that clearly indicates multiple people
-            let text = name.replace(/[;&+]/g, ' and ');
-            
-            // Check if any connecting words are present (indicates multiple people)
-            const hasConnectingWords = connectingWords.some(word => {
-                if (word === '&') {
-                    // Special handling for & symbol - just check if it exists
-                    return name.includes('&');
-                }
-                // Escape special regex characters
-                const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const pattern = new RegExp('\\b' + escapedWord + '\\b', 'i');
-                return pattern.test(name);
-            });
-            
-            if (hasConnectingWords) {
-                // Split by connecting words and count distinct groups
-                let segments = text.toLowerCase();
-                connectingWords.forEach(word => {
-                    if (word === '&') {
-                        // Special handling for & symbol
-                        segments = segments.replace(/&/g, '|');
-                    } else {
-                        // Escape special regex characters
-                        const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                        segments = segments.replace(new RegExp('\\b' + escapedWord + '\\b', 'g'), '|');
-                    }
-                });
-                const groups = segments.split('|').filter(group => group.trim().length > 0);
-                return Math.max(1, groups.length);
-            }
-            
-            // No connecting words found - treat as single person (even if multiple words like "John Smith")
-            return 1;
+
+            // Commas, & + ; and the connecting words all separate people, in any mix
+            // ("Isabella, Lucie & Javier" is 3). A name with none of them, like "John Smith", is 1.
+            const segments = lowerName
+                .split(/[,;&+]|\b(?:and|with|plus)\b/)
+                .filter(segment => segment.trim().length > 0);
+            return Math.max(1, segments.length);
         }
 
         function switchTab(tabName) {
