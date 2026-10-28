@@ -1,46 +1,46 @@
 # 🎉 Party Cat
 
-A simple party planning web app - running live at https://partycat.app
+A free, open-source party planner: RSVPs, to-dos and shopping in one place. Try it at https://partycat.app
 
 ![Party Cat Screenshot](screenshot.png)
 
 ## ✨ Features
-- **RSVP Tracker** - Manage guest lists with intelligent people count detection
-- **Todo Management** - Track party planning tasks with completion status
-- **Shopping Lists** - Organise items to buy with check-off functionality
-- **Dual Mode Operation** - Works offline (localStorage) or online (accounts synced to a PHP + MySQL backend)
-- **Intelligent Guest Detection** - Automatically counts guests
+- **RSVP Tracker** - Mark guests Yes, No or Pending, with a live headcount
+- **Smart guest counting** - Works out how many people each entry is
   - "Smith Family" → 4 people
   - "John & Jane" → 2 people
-  - "Kate and Steve" → 2 people  
+  - "Kate and Steve" → 2 people
   - "Bob, Alice, Charlie" → 3 people
+- **Todo List** - Track party planning tasks
+- **Shopping List** - Tick items off as you buy them
+- **No account needed** - Guest mode keeps everything in the browser (`localStorage`)
+- **Optional accounts** - Sync a party across devices through a small PHP + MySQL backend
+- **Four themes** - Confetti, Astro Cat, Loose Thread and Calm Cat, switched with the cat button at the bottom right
 
-## 🚀 Development
+## 🚀 Running It
 
-### 1. Clone the Repository
+### Guest mode only
+No setup needed. Serve the folder with any web server, for example:
 ```bash
 git clone https://github.com/maevelander/partycat.git
 cd partycat
+php -S localhost:8000
 ```
+Then open http://localhost:8000
 
-### 2. Set Up the Backend
-Guest mode works with no setup. Accounts (cloud sync) need PHP 8.1+ (production runs 8.5) and MySQL or MariaDB:
+### With accounts
+Accounts need PHP 8.1+ and MySQL or MariaDB:
 
 1. Create an empty database and run `schema.sql` against it
 2. Copy `api/config-example.php` to `api/config.php` and fill in:
    - database credentials
-   - your app URL (used in password reset links)
-   - SMTP settings for a mailbox that sends password reset emails
-   - the admin emails allowed to view analytics, and the timezone used to count visits per day
+   - the app's public URL (used in password reset links)
+   - SMTP settings for the mailbox that sends password reset emails
+   - optionally, admin emails for the analytics dashboard and the timezone used to count visits
 
-`api/config.php` holds secrets: it's gitignored, blocked from web access by `api/.htaccess`, and a local pre-commit hook refuses to commit it.
-For local development, you can also add an `api/config.local.php` (same format, also gitignored). It takes precedence over `config.php`.
+`api/config.php` holds secrets, so it's gitignored and `api/.htaccess` blocks web access to it. For local development you can add an `api/config.local.php` instead (same format, also gitignored); it takes precedence over `config.php`. Set `secure_cookies` to `false` when running over plain `http://`.
 
-### 3. Run the Application
-```bash
-php -S localhost:8000 dev-router.php
-open http://localhost:8000
-```
+To host it, upload the files to any PHP host with `api/config.php` in place. The root `.htaccess` and `api/.htaccess` assume Apache or LiteSpeed; on other servers, make sure only `api/index.php` is reachable under `api/`.
 
 ## 🧩 How the Backend Works
 
@@ -54,7 +54,7 @@ The frontend is static HTML, CSS and JavaScript. Account features talk to `api/i
 | `party` / `update_party` / `clear_party` | GET / POST | The user's party, its title, and Clear Data |
 | `items` / `create_item` / `update_item` / `delete_item` | GET / POST | Guests, todos and shopping items (`type` = `guests`, `todos` or `shopping_items`) |
 | `visit` | POST | Records an anonymous visit (once per browser per day; guests only after they click or type) |
-| `stats` | GET | Guest, account and returning users for the last 30/60/90/180 days, plus daily counts (admin accounts only) |
+| `stats` | GET | Visit counts for the analytics dashboard (admin accounts only) |
 
 Call it as `api/?action=<name>`; POST bodies are JSON.
 
@@ -63,37 +63,20 @@ Call it as `api/?action=<name>`; POST bodies are JSON.
 - Every data query is scoped to the logged-in user's party, so users can only see and change their own data.
 - POST requests must be JSON, which blocks cross-site form submissions (CSRF).
 - Login, signup and password reset requests are rate limited per IP and per email address.
+- Password reset emails go out over authenticated SMTP using PHPMailer, bundled in `api/lib/PHPMailer/`.
 
-**Email**
-- Password reset emails are sent over authenticated SMTP (PHPMailer, bundled in `api/lib/PHPMailer/`) from a mailbox on the app's own domain, so they pass SPF, DKIM and DMARC.
+### Analytics Dashboard (optional)
+List one or more accounts in `admin_emails`, then open `/analytics.html` and log in. It shows guest, account and returning users for the last 30, 60, 90 and 180 days.
 
-### Analytics Dashboard
-Open `/analytics.html` and log in with an account listed in `admin_emails` in `api/config.php`. It shows, for the last 30, 60, 90 and 180 days:
+The app keeps a random ID in the browser's `localStorage` and sends a `visit` when someone uses it. Guests count only after their first click or keypress, so bots and drive-by page views don't count. The server stores at most one row per browser per day in the `visits` table. No cookies or third-party services are involved. Leave `admin_emails` empty to switch the dashboard off.
 
-- **Guest users**: browsers that used the app without logging in
-- **Account users**: logged-in accounts, counted once across devices
-- **Returning users**: people who used the app on more than one day
+## 🎨 Themes
 
-How it works: the app keeps a random ID in the browser's `localStorage` and sends a `visit` when someone uses it. Guests count only after their first click or keypress, so bots and drive-by page views don't count; logged-in users count when the app opens. The server stores at most one row per browser per day in the `visits` table, as a guest or account visit depending on the login. A browser that logs in counts only as an account visit that day. No cookies or third-party services are involved.
-
-## 🌐 Deployment
-
-partycat.app runs on shared PHP hosting. A deploy replaces the whole site, so upload all of these together:
-
-- `index.html` (homepage), `dashboard.html` (the app, served at `/dashboard`), `about.html`, `legal.html`, `analytics.html`, `style.css`, and the whole `themes/` folder
-- `.htaccess`, `robots.txt`, `sitemap.xml`, `llms.txt`, `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `og-image.png`
-- `api/index.php`, `api/.htaccess`, `api/config.php`, `api/lib/PHPMailer/`
-
-Don't upload `api/config.local.php`, `dev-router.php`, `schema.sql`, `CLAUDE.md` or other repo files. On the server, the app connects to MySQL at `127.0.0.1`.
-
-## 🎨 Design Approach
-
-- **Themes** - Four themes, switched with the cat button at the bottom right: Confetti (default), Astro Cat, Loose Thread and Calm Cat. The choice is saved in the browser (`partycat-theme` in `localStorage`)
-- **Mobile-First** - Responsive design that works on all devices  
-- **Progressive Enhancement** - Core functionality works without JavaScript
-- **Accessibility** - Keyboard navigation and screen reader support
+Every colour, font and shape in `style.css` comes from CSS custom properties, and each theme in `themes/<id>/theme.css` sets them and places its own artwork. To add a theme, create `themes/<id>/` with a `theme.css` and its artwork, then add `{ id, name }` to `THEMES` in `themes/themes.js`.
 
 ## 🤝 Contributing
+
+Bug reports and pull requests are welcome.
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)

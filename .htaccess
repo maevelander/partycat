@@ -1,14 +1,3 @@
-RewriteEngine On
-
-# One address for search engines: www.partycat.app redirects to partycat.app
-RewriteCond %{HTTP_HOST} ^www\.partycat\.app$ [NC]
-RewriteRule ^ https://partycat.app%{REQUEST_URI} [R=301,L]
-
-# The app lives at /dashboard (served from dashboard.html). A trailing slash would break
-# its relative paths (style.css, themes/, api/), so redirect it away.
-RewriteRule ^dashboard/$ /dashboard [R=301,L]
-RewriteRule ^dashboard$ dashboard.html [L]
-
 # Security headers for every page
 <IfModule mod_headers.c>
     # Don't let other sites embed Party Cat in a frame (clickjacking)

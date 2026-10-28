@@ -44,3 +44,6 @@ api/config.local.php
 
 # Local data archives (exports from the database)
 archive/
+
+# Hosted-site files (homepage, About/Legal, SEO files, .htaccess), laid over the app at deploy
+site/
